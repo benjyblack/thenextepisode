@@ -1,0 +1,32 @@
+{
+  "manifest_version": 2,
+
+  "name": "TheNextEpisode",
+  "description": "TheNextEpisode is your guide for whatever TV series you're watching online.",
+  "version": "0.5",
+  
+   "browser_action": {     
+		"default_icon": "fastforward.png",  
+		"default_popup": "popup.html"   
+	}, 
+	
+	"background": { "page": "background.html" },
+	
+	"permissions": [
+		"http://*.1channel.ch/",
+		"storage"
+	],
+	
+	"content_scripts": [
+    {
+      "matches": ["http://*.1channel.ch/*"],
+	  "css": ["css/1channel.css"],
+      "js": ["js/jquery.js", "js/1channel.js", "js/objects.js"],
+	  "img": ["img/loader.gif"],
+	  "run_at": "document_start"
+    }],
+	
+	"web_accessible_resources": [
+		"img/loader.gif"
+	]
+}
