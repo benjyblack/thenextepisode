@@ -1,3 +1,6 @@
+import $ from 'jquery';
+import 'bootstrap';
+
 function loadingText() {
 	
 	// remove any previous listings

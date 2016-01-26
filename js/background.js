@@ -1,13 +1,20 @@
+import $ from 'jquery';
+import fetch from 'isomorphic-fetch';
+import _ from 'lodash';
+
+import { Collection } from './objects';
+
 var collection = [];
-var seasons = [];
 var episodes = [];
 var currPageIndex = 0;
 
+const BASE_URL = 'http://primewire.ag';
+
 // check to see if local storage is set up
-chrome.storage.local.get("collection", 
-	function (result) { 
+chrome.storage.local.get("collection",
+	function (result) {
 		if (jQuery.isEmptyObject(result)){
-			chrome.storage.local.set({ 'collection' : new collection() }, function(){
+			chrome.storage.local.set({ 'collection' : new Collection() }, function(){
 				console.log("Series array created in local storage.");
 			});
 		}
@@ -19,16 +26,12 @@ chrome.storage.local.get("collection",
 );
 
 // given a URL, collect its html data
-var getInformation = function(episode, callback) {
-	var xhr = new XMLHttpRequest();
-	xhr.open("GET", "http://www.1channel.ch" + episode.url, true);
-	xhr.onreadystatechange = function() {
-		if (xhr.readyState === 4) {
-			callback(xhr.responseText);
-		}
-	};
-	xhr.send(null);
-}
+const getInformation = function(episode, callback) {
+  const urlToFetch = `${BASE_URL}${episode.url}`;
+  fetch(urlToFetch).then(function (response) {
+    callback(response);
+  });
+};
 
 // get the various host links for the episode
 var pruneLinks = function (html) {
@@ -74,7 +77,7 @@ function onMessage(request, sender, callback) {
 	switch (request.action) {
 		case "openPopup":
 			// if no links are available let the user know
-			if (episodes.length == 0) callback(0);
+			if (episodes.length == 0) return callback(0);
 
 			returnEpisodeDetails(episodes[episodes.indexOfEpisode(getCurrentSeries().nextEpisodeToView)], callback);
 			break;
@@ -109,7 +112,7 @@ function onMessage(request, sender, callback) {
 		case "listingClicked":
 			currPageIndex++;
 			break;
-		// seperate this into episodeClicked and addSeries listeners, with a condition to not call addSeries in 1channel.js if it already exists
+		// seperate this into episodeClicked and addSeries listeners, with a condition to not call addSeries in primewire.js if it already exists
 		case "addSeries":		
 			currentSeries = request.series;
 			currPageIndex = request.clickedEpisodeIndex + 1;

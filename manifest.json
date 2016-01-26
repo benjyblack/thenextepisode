@@ -6,22 +6,22 @@
   "version": "0.5",
   
    "browser_action": {     
-		"default_icon": "fastforward.png",  
-		"default_popup": "popup.html"   
+		"default_icon": "fastforward.png",
+		"default_popup": "popup.html"
 	}, 
 	
 	"background": { "page": "background.html" },
 	
 	"permissions": [
-		"http://*.1channel.ch/",
+		"http://*.primewire.ag/",
 		"storage"
 	],
 	
 	"content_scripts": [
     {
-      "matches": ["http://*.1channel.ch/*"],
+      "matches": ["http://*.primewire.ag/*"],
+      "js": [ "dist/content-bundle.js" ],
 	  "css": ["css/1channel.css"],
-      "js": ["js/jquery.js", "js/1channel.js", "js/objects.js"],
 	  "img": ["img/loader.gif"],
 	  "run_at": "document_start"
     }],

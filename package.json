@@ -1,0 +1,38 @@
+{
+  "name": "thenextepisode",
+  "version": "1.0.0",
+  "description": "TheNextEpisode is a interactive guide to the (public domain) TV series you are watching on 1channel.ch. After you choose an episode on 1channel, the guide will gather information on all other episodes available for that series. When you click the button on your browser, TheNextEpisode will give you a list, sorted by view count, of all the links available for the next episode. You can also navigate to the previous, or next episodes from the guide.",
+  "main": "webpack.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/benjyblack/thenextepisode.git"
+  },
+  "keywords": [
+    "chrome",
+    "extension",
+    "stream"
+  ],
+  "author": "Ben Black",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/benjyblack/thenextepisode/issues"
+  },
+  "homepage": "https://github.com/benjyblack/thenextepisode",
+  "devDependencies": {
+    "babel-loader": "^6.2.1",
+    "babel-preset-es2015": "^6.3.13",
+    "bootstrap": "^3.3.6",
+    "css-loader": "^0.23.1",
+    "expose-loader": "^0.7.1",
+    "isomorphic-fetch": "^2.2.0",
+    "jquery": "^2.2.0",
+    "lodash": "^4.0.0",
+    "rsvp": "^3.1.0",
+    "style-loader": "^0.13.0",
+    "webpack": "^1.12.12",
+    "webpack-dev-server": "^1.14.1"
+  }
+}
