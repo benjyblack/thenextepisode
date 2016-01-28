@@ -4,7 +4,7 @@
   "description": "TheNextEpisode is a interactive guide to the (public domain) TV series you are watching on 1channel.ch. After you choose an episode on 1channel, the guide will gather information on all other episodes available for that series. When you click the button on your browser, TheNextEpisode will give you a list, sorted by view count, of all the links available for the next episode. You can also navigate to the previous, or next episodes from the guide.",
   "main": "webpack.config.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --compilers js:babel-register"
   },
   "repository": {
     "type": "git",
@@ -25,18 +25,18 @@
     "babel-loader": "^6.2.1",
     "babel-preset-es2015": "^6.3.13",
     "bootstrap": "^3.3.6",
+    "chai": "^3.4.1",
+    "cheerio": "^0.19.0",
     "css-loader": "^0.23.1",
     "expose-loader": "^0.7.1",
     "isomorphic-fetch": "^2.2.0",
     "jquery": "^2.2.0",
     "lodash": "^4.0.0",
+    "mocha": "^2.4.4",
     "rsvp": "^3.1.0",
+    "sinon": "^1.17.3",
     "style-loader": "^0.13.0",
     "webpack": "^1.12.12",
     "webpack-dev-server": "^1.14.1"
-  },
-  "dependencies": {
-    "chai": "^3.4.1",
-    "mocha": "^2.4.4"
   }
 }

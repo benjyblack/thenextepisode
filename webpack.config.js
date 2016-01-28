@@ -3,7 +3,7 @@ var path = require('path');
 module.exports = {
   entry: {
     background: './js/background.js',
-    content: './js/content.js',
+    content: './js/index.js',
     popup: './js/popup.js'
   },
   output: {
