@@ -54,7 +54,7 @@
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
-	var _objects = __webpack_require__(8);
+	var _objects = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./objects\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
 
 	var _localStorageHelper = __webpack_require__(9);
 
@@ -64,12 +64,9 @@
 	var SELECTOR_EPISODE = '.tv_episode_item';
 
 	var onReady = function onReady() {
-	  (0, _localStorageHelper.getFromStorage)('collection').then(function (_ref) {
-	    var collection = _ref.collection;
-
-	    debugger;
+	  (0, _localStorageHelper.retrieve)('TheNextEpisode').then(function (results) {
 	    var seriesName = (0, _jquery2.default)(SELECTOR_SERIES_NAME).text();
-	    var seriesAlreadyAdded = _lodash2.default.some(collection.allSeries, { name: seriesName });
+	    var seriesAlreadyAdded = _lodash2.default.some(results, { name: seriesName });
 
 	    if (seriesAlreadyAdded) return;
 
@@ -122,7 +119,7 @@
 
 	  collection.allSeries.push(newSeries);
 
-	  (0, _localStorageHelper.setInStorage)({ 'collection': collection }).then(function () {
+	  (0, _localStorageHelper.store)({ 'collection': collection }).then(function () {
 	    console.log(seriesName + ' added to local storage.');
 
 	    document.location.href = clickedEpisodeLink;
@@ -24440,51 +24437,7 @@
 
 
 /***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	"use strict";
-
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	exports.Collection = Collection;
-	exports.Series = Series;
-	exports.Season = Season;
-	exports.Episode = Episode;
-	function Collection() {
-		this.allSeries = [];
-
-		this.indexOfSeries = function (seriesName) {
-			for (var i = 0; i < allSeries.length; i++) {
-				if (allSeries[i].name == name) {
-					return i;
-				}
-			}
-			return -1;
-		};
-	}
-
-	function Series(name) {
-		this.name = name;
-		this.seasons = [];
-		this.lastViewedEpisode = "";
-	}
-
-	function Season(number) {
-		this.number = number;
-		this.episodes = [];
-	}
-
-	function Episode(name, number, seasonNumber, url) {
-		this.name = name;
-		this.number = number;
-		this.seasonNumber = seasonNumber;
-		this.url = "";
-		this.links = [];
-	}
-
-/***/ },
+/* 8 */,
 /* 9 */
 /***/ function(module, exports) {
 
@@ -24493,7 +24446,10 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var getFromStorage = exports.getFromStorage = function getFromStorage(name) {
+	//export const retrieve = promisify(chrome.storage.local.get).bind(chrome.storage.local);
+	//export const store = promisify(chrome.storage.local.set).bind(chrome.storage.local);
+
+	var retrieve = exports.retrieve = function retrieve(name) {
 	  return new Promise(function (resolve) {
 	    chrome.storage.local.get(name, function () {
 	      return resolve.apply(undefined, arguments);
@@ -24501,13 +24457,24 @@
 	  });
 	};
 
-	var setInStorage = exports.setInStorage = function setInStorage(obj) {
+	var store = exports.store = function store(obj) {
 	  return new Promise(function (resolve) {
 	    chrome.storage.local.set(obj, function () {
 	      return resolve.apply(undefined, arguments);
 	    });
 	  });
 	};
+
+	//function promisify(fun) {
+	//  return function (...args) {
+	//    var loadedFun = _.partial(fun, ...args);
+	//    return new Promise(function (resolve) {
+	//      loadedFun(function () {
+	//        resolve(...arguments);
+	//      });
+	//    });
+	//  };
+	//}
 
 /***/ }
 /******/ ]);

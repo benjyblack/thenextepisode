@@ -58,34 +58,28 @@
 
 	var _lodash2 = _interopRequireDefault(_lodash);
 
-	var _objects = __webpack_require__(8);
+	var _localStorageHelper = __webpack_require__(9);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	var collection = [];
-	var episodes = [];
+	var currentSeries, currentSeason, currentEpisode;
 	var currPageIndex = 0;
 
 	var BASE_URL = 'http://primewire.ag';
 
-	// check to see if local storage is set up
-	chrome.storage.local.get("collection", function (result) {
-		if (jQuery.isEmptyObject(result)) {
-			chrome.storage.local.set({ 'collection': new _objects.Collection() }, function () {
-				console.log("Series array created in local storage.");
-			});
+	(0, _localStorageHelper.retrieve)('TheNextEpisode').then(function (result) {
+		// set initial series and season
+		if (result && result.length) {
+			currentSeries = _lodash2.default.first(result);
+			currentSeason = _lodash2.default.first(currentSeries.seasons);
+		} else {
+			createStorageObject();
 		}
-		if (result.collection && result.collection.length > 0) {
-			collection = result.collection;
-			episodes = collection[0].episodes;
-		};
 	});
 
-	// given a URL, collect its html data
-	var getInformation = function getInformation(episode, callback) {
-		var urlToFetch = '' + BASE_URL + episode.url;
-		(0, _isomorphicFetch2.default)(urlToFetch).then(function (response) {
-			callback(response);
+	var createStorageObject = function createStorageObject() {
+		(0, _localStorageHelper.store)({ 'TheNextEpisode': [] }).then(function () {
+			console.log("Series array created in local storage.");
 		});
 	};
 
@@ -116,10 +110,9 @@
 	};
 
 	// gets the episode's links and title and returns it to the popup
-	var returnEpisodeDetails = function returnEpisodeDetails(episode, callback) {
-
-		// get all links for the episode and then callback to display them
-		getInformation(episode, function (html) {
+	var fetchEpisodeDetails = function fetchEpisodeDetails(episode, callback) {
+		var urlToFetch = '' + BASE_URL + episode.url;
+		return (0, _isomorphicFetch2.default)(urlToFetch).then(function (html) {
 			episode.links = pruneLinks(html);
 
 			callback(episode);
@@ -130,37 +123,37 @@
 		switch (request.action) {
 			case "openPopup":
 				// if no links are available let the user know
-				if (episodes.length == 0) return callback(0);
+				if (currentSeason.episodes.length == 0) return callback(0);
 
-				returnEpisodeDetails(episodes[episodes.indexOfEpisode(getCurrentSeries().nextEpisodeToView)], callback);
+				fetchEpisodeDetails(currentSeason[currentSeason.indexOfEpisode(getCurrentSeries().nextEpisodeToView)], callback);
 				break;
 			case "getNextSeries":
-				var nextSeries = collection.getCircularNext(getCurrentSeriesIndex());
-				episodes = nextSeries.episodes;
+				var nextSeries = currentSeries.getCircularNext(getCurrentSeriesIndex());
+				currentSeason = nextSeries.episodes;
 
-				returnEpisodeDetails(episodes.getEpisodeByName(nextSeries.nextEpisodeToView), callback);
+				fetchEpisodeDetails(currentSeason.getEpisodeByName(nextSeries.nextEpisodeToView), callback);
 				break;
 			case "getPrevSeries":
-				var nextSeries = collection.getCircularPrev(getCurrentSeriesIndex());
-				episodes = nextSeries.episodes;
+				var nextSeries = currentSeries.getCircularPrev(getCurrentSeriesIndex());
+				currentSeason = nextSeries.episodes;
 
-				returnEpisodeDetails(episodes.getEpisodeByName(nextSeries.nextEpisodeToView), callback);
+				fetchEpisodeDetails(currentSeason.getEpisodeByName(nextSeries.nextEpisodeToView), callback);
 				break;
 			case "getNextSeason":
-				returnEpisodeDetails(episodes[episodes.indexOfFirstEpOfSeason(request.data * 1 + 1)], callback);
+				fetchEpisodeDetails(currentSeason[currentSeason.indexOfFirstEpOfSeason(request.data * 1 + 1)], callback);
 				break;
 			case "getPrevSeason":
-				returnEpisodeDetails(episodes[episodes.indexOfFirstEpOfSeason(request.data * 1 - 1)], callback);
+				fetchEpisodeDetails(currentSeason[currentSeason.indexOfFirstEpOfSeason(request.data * 1 - 1)], callback);
 				break;
 			case "getNextEpisode":
-				if (episodes.length == currPageIndex) return;
+				if (currentSeason.length == currPageIndex) return;
 
-				returnEpisodeDetails(episodes[++currPageIndex], callback);
+				fetchEpisodeDetails(currentSeason[++currPageIndex], callback);
 				break;
 			case "getPrevEpisode":
 				if (currPageIndex == 0) return;
 
-				returnEpisodeDetails(episodes[--currPageIndex], callback);
+				fetchEpisodeDetails(currentSeason[--currPageIndex], callback);
 				break;
 			case "listingClicked":
 				currPageIndex++;
@@ -182,11 +175,11 @@
 
 	// helper functions
 	var getCurrentSeriesIndex = function getCurrentSeriesIndex() {
-		return collection.indexOfSeries(episodes[0].seriesName);
+		return currentSeries.indexOfSeries(currentSeason[0].seriesName);
 	};
 
 	var getCurrentSeries = function getCurrentSeries() {
-		return collection[getCurrentSeriesIndex()];
+		return currentSeries[getCurrentSeriesIndex()];
 	};
 
 	Array.prototype.getEpisodeByDetails = function () {};
@@ -24937,49 +24930,44 @@
 
 
 /***/ },
-/* 8 */
+/* 8 */,
+/* 9 */
 /***/ function(module, exports) {
 
 	"use strict";
 
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	  value: true
 	});
-	exports.Collection = Collection;
-	exports.Series = Series;
-	exports.Season = Season;
-	exports.Episode = Episode;
-	function Collection() {
-		this.allSeries = [];
+	//export const retrieve = promisify(chrome.storage.local.get).bind(chrome.storage.local);
+	//export const store = promisify(chrome.storage.local.set).bind(chrome.storage.local);
 
-		this.indexOfSeries = function (seriesName) {
-			for (var i = 0; i < allSeries.length; i++) {
-				if (allSeries[i].name == name) {
-					return i;
-				}
-			}
-			return -1;
-		};
-	}
+	var retrieve = exports.retrieve = function retrieve(name) {
+	  return new Promise(function (resolve) {
+	    chrome.storage.local.get(name, function () {
+	      return resolve.apply(undefined, arguments);
+	    });
+	  });
+	};
 
-	function Series(name) {
-		this.name = name;
-		this.seasons = [];
-		this.lastViewedEpisode = "";
-	}
+	var store = exports.store = function store(obj) {
+	  return new Promise(function (resolve) {
+	    chrome.storage.local.set(obj, function () {
+	      return resolve.apply(undefined, arguments);
+	    });
+	  });
+	};
 
-	function Season(number) {
-		this.number = number;
-		this.episodes = [];
-	}
-
-	function Episode(name, number, seasonNumber, url) {
-		this.name = name;
-		this.number = number;
-		this.seasonNumber = seasonNumber;
-		this.url = "";
-		this.links = [];
-	}
+	//function promisify(fun) {
+	//  return function (...args) {
+	//    var loadedFun = _.partial(fun, ...args);
+	//    return new Promise(function (resolve) {
+	//      loadedFun(function () {
+	//        resolve(...arguments);
+	//      });
+	//    });
+	//  };
+	//}
 
 /***/ }
 /******/ ]);

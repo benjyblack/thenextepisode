@@ -2,16 +2,15 @@ import $ from 'jquery';
 import _ from 'lodash';
 
 import { Series, Season, Episode } from './objects';
-import { getFromStorage, setInStorage } from './local-storage-helper';
+import { retrieve, store } from './local-storage-helper';
 
 const SELECTOR_SERIES_NAME = '.movie_navigation .titles span a';
 const SELECTOR_EPISODE = '.tv_episode_item';
 
 const onReady = () => {
-  getFromStorage('collection').then(({ collection }) => {
-    debugger;
+  retrieve('TheNextEpisode').then((results) => {
     var seriesName = $(SELECTOR_SERIES_NAME).text();
-    var seriesAlreadyAdded = _.some(collection.allSeries, { name: seriesName });
+    var seriesAlreadyAdded = _.some(results, { name: seriesName });
 
     if (seriesAlreadyAdded) return;
 
@@ -66,7 +65,7 @@ const handleClick = function (event) {
 
   collection.allSeries.push(newSeries);
 
-  setInStorage({ 'collection' : collection }).then(() => {
+  store({ 'collection' : collection }).then(() => {
     console.log(`${seriesName} added to local storage.`);
 
     document.location.href=clickedEpisodeLink;

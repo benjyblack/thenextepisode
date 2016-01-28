@@ -1,16 +1,3 @@
-export function Collection(){
-	this.allSeries = [];
-
-	this.indexOfSeries = function(seriesName) {
-		for (var i = 0; i < allSeries.length; i++) {
-      if (allSeries[i].name == name) {
-        return i;
-      }
-    }
-    return -1;
-	}
-}
-
 export function Series(name){
 	this.name = name;
 	this.seasons = [];

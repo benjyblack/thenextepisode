@@ -2,34 +2,28 @@ import $ from 'jquery';
 import fetch from 'isomorphic-fetch';
 import _ from 'lodash';
 
-import { Collection } from './objects';
+import { retrieve, store } from './local-storage-helper';
 
-var collection = [];
-var episodes = [];
+var currentSeries,
+  currentSeason,
+  currentEpisode;
 var currPageIndex = 0;
 
 const BASE_URL = 'http://primewire.ag';
 
-// check to see if local storage is set up
-chrome.storage.local.get("collection",
-	function (result) {
-		if (jQuery.isEmptyObject(result)){
-			chrome.storage.local.set({ 'collection' : new Collection() }, function(){
-				console.log("Series array created in local storage.");
-			});
-		}
-		if (result.collection && result.collection.length > 0) {
-			collection = result.collection;
-			episodes = collection[0].episodes;
-		};
-	}
-);
+retrieve('TheNextEpisode').then(function (result) {
+  // set initial series and season
+  if (result && result.length) {
+    currentSeries = _.first(result);
+    currentSeason = _.first(currentSeries.seasons);
+  } else {
+    createStorageObject();
+  }
+});
 
-// given a URL, collect its html data
-const getInformation = function(episode, callback) {
-  const urlToFetch = `${BASE_URL}${episode.url}`;
-  fetch(urlToFetch).then(function (response) {
-    callback(response);
+const createStorageObject = () => {
+  store({ 'TheNextEpisode' : [] }).then(function(){
+    console.log("Series array created in local storage.");
   });
 };
 
@@ -61,53 +55,50 @@ var pruneLinks = function (html) {
 }
 
 // gets the episode's links and title and returns it to the popup
-var returnEpisodeDetails = function(episode, callback) {
+var fetchEpisodeDetails = function(episode, callback) {
+  const urlToFetch = `${BASE_URL}${episode.url}`;
+  return fetch(urlToFetch).then(function (html) {
+    episode.links = pruneLinks(html);
 
-	// get all links for the episode and then callback to display them
-	getInformation(episode, 
-		function(html) {
-			episode.links = pruneLinks(html);
-			
-			callback(episode);
-		}
-	);
-}
+    callback(episode);
+  });
+};
 
 function onMessage(request, sender, callback) {
 	switch (request.action) {
 		case "openPopup":
 			// if no links are available let the user know
-			if (episodes.length == 0) return callback(0);
+			if (currentSeason.episodes.length == 0) return callback(0);
 
-			returnEpisodeDetails(episodes[episodes.indexOfEpisode(getCurrentSeries().nextEpisodeToView)], callback);
+			fetchEpisodeDetails(currentSeason[currentSeason.indexOfEpisode(getCurrentSeries().nextEpisodeToView)], callback);
 			break;
 		case "getNextSeries":
-			var nextSeries = collection.getCircularNext(getCurrentSeriesIndex());
-			episodes = nextSeries.episodes;
+			var nextSeries = currentSeries.getCircularNext(getCurrentSeriesIndex());
+			currentSeason = nextSeries.episodes;
 
-			returnEpisodeDetails(episodes.getEpisodeByName(nextSeries.nextEpisodeToView), callback);
+			fetchEpisodeDetails(currentSeason.getEpisodeByName(nextSeries.nextEpisodeToView), callback);
 			break;
 		case "getPrevSeries":
-			var nextSeries = collection.getCircularPrev(getCurrentSeriesIndex());
-			episodes = nextSeries.episodes;
+			var nextSeries = currentSeries.getCircularPrev(getCurrentSeriesIndex());
+			currentSeason = nextSeries.episodes;
 
-			returnEpisodeDetails(episodes.getEpisodeByName(nextSeries.nextEpisodeToView), callback);
+			fetchEpisodeDetails(currentSeason.getEpisodeByName(nextSeries.nextEpisodeToView), callback);
 			break;
 		case "getNextSeason":
-			returnEpisodeDetails(episodes[episodes.indexOfFirstEpOfSeason(request.data*1 + 1)], callback);
+			fetchEpisodeDetails(currentSeason[currentSeason.indexOfFirstEpOfSeason(request.data*1 + 1)], callback);
 			break;
 		case "getPrevSeason":
-			returnEpisodeDetails(episodes[episodes.indexOfFirstEpOfSeason(request.data*1 - 1)], callback);
+			fetchEpisodeDetails(currentSeason[currentSeason.indexOfFirstEpOfSeason(request.data*1 - 1)], callback);
 			break;
 		case "getNextEpisode":
-			if (episodes.length == currPageIndex) return;
+			if (currentSeason.length == currPageIndex) return;
 			
-			returnEpisodeDetails(episodes[++currPageIndex], callback);
+			fetchEpisodeDetails(currentSeason[++currPageIndex], callback);
 			break;
 		case "getPrevEpisode":
 			if (currPageIndex == 0) return;
 			
-			returnEpisodeDetails(episodes[--currPageIndex], callback);
+			fetchEpisodeDetails(currentSeason[--currPageIndex], callback);
 			break;
 		case "listingClicked":
 			currPageIndex++;
@@ -131,11 +122,11 @@ chrome.extension.onMessage.addListener(onMessage);
 
 // helper functions
 var getCurrentSeriesIndex = function() {
-	return collection.indexOfSeries(episodes[0].seriesName);
+	return currentSeries.indexOfSeries(currentSeason[0].seriesName);
 }
 
 var getCurrentSeries = function() {
-	return collection[getCurrentSeriesIndex()];
+	return currentSeries[getCurrentSeriesIndex()];
 }
 
 Array.prototype.getEpisodeByDetails = function() {
