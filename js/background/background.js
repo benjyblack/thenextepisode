@@ -1,31 +1,22 @@
-import $ from 'jquery';
-import fetch from 'isomorphic-fetch';
-import _ from 'lodash';
+const $ = require('jquery');
+const fetch = require('isomorphic-fetch');
+const _ = require('lodash');
 
-import { retrieve, store } from './local-storage-helper';
+const DB = require('../db');
 
 var currentSeries,
-  currentSeason,
-  currentEpisode;
+  currentSeason;
 var currPageIndex = 0;
 
 const BASE_URL = 'http://primewire.ag';
 
-retrieve('TheNextEpisode').then(function (result) {
+DB.boot().then(function () {
+  return DB.get();
+}).then(function (result) {
   // set initial series and season
-  if (result && result.length) {
-    currentSeries = _.first(result);
-    currentSeason = _.first(currentSeries.seasons);
-  } else {
-    createStorageObject();
-  }
+  currentSeries = _.first(result);
+  currentSeason = _.first(currentSeries.seasons);
 });
-
-const createStorageObject = () => {
-  store({ 'TheNextEpisode' : [] }).then(function(){
-    console.log("Series array created in local storage.");
-  });
-};
 
 // get the various host links for the episode
 var pruneLinks = function (html) {

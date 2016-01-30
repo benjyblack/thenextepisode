@@ -1,9 +1,11 @@
 const _ = require('lodash');
 
-const TV_EPISODE_SELECTOR = '.tv_episode_item:not(".transp2")';
-const TV_EPISODE_NAME_SELECTOR = '.tv_episode_name';
-const TV_EPISODE_NAME_PREFIX = ' - ';
-const TV_SERIES_TITLE_SELECTOR = '.choose_tabs > h1 > span';
+const {
+  TV_SERIES_TITLE_SELECTOR,
+  TV_EPISODE_SELECTOR,
+  TV_EPISODE_NAME_SELECTOR,
+  TV_EPISODE_NAME_PREFIX
+} = require('../constants');
 
 module.exports = ($) => {
   const seriesName = $(TV_SERIES_TITLE_SELECTOR).text().split(' ').slice(0, -1).join(' ');
@@ -19,15 +21,14 @@ module.exports = ($) => {
     return { url, name, number};
   });
 
-  const separatedBySeason = _.groupBy(episodes, function (episode) {
+  const seasons = _.groupBy(episodes, function (episode) {
     return _.last(episode.url.match(/\/(season-\d+)/));
   });
 
-  const withSeasonNumbersAdded = _.map(separatedBySeason, function (val, key) {
-    return {
-      number: parseInt(_.last(key.split('-')), 10),
-      episodes: val
-    };
+  const withSeasonNumbersAdded = _.map(seasons, function (episodes, key) {
+    const number = parseInt(_.last(key.split('-')), 10);
+
+    return { number, episodes };
   });
 
   return {
