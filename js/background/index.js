@@ -1,8 +1,9 @@
-const $ = require('jquery');
 const fetch = require('isomorphic-fetch');
 const _ = require('lodash');
 
-const DB = require('../db');
+const DB = require('../shared/db');
+
+const extractEpisodeLinks = require('../grammars/extract-episode-links');
 
 var currentSeries,
   currentSeason;
@@ -18,38 +19,11 @@ DB.boot().then(function () {
   currentSeason = _.first(currentSeries.seasons);
 });
 
-// get the various host links for the episode
-var pruneLinks = function (html) {
-	var availableLinks = $(".movie_version", html);
-	var prunedLinks = [];
-	
-	for (i = 0; i < availableLinks.length; i++)
-	{
-		var x = availableLinks[i];
-		var website = $(x).find('.version_host').text().split("'")[1];
-		
-		// don't take any HD sponsor spam
-		if (website == "HD Sponsor") continue;
-		
-		prunedLinks.push({
-			website: website,
-			link: $(x).find('.movie_version_link a').attr('href'),
-			rating: $(x).find('.current-rating').text().split(' ')[1],
-			num_views: $(x).find('.version_veiws').text().split(' ')[1]
-		});
-	}
-	
-	// sort the array by views as we give it back
-	return prunedLinks.sort(function (a, b) {
-		return (b.num_views - a.num_views);
-	});
-}
-
 // gets the episode's links and title and returns it to the popup
 var fetchEpisodeDetails = function(episode, callback) {
   const urlToFetch = `${BASE_URL}${episode.url}`;
   return fetch(urlToFetch).then(function (html) {
-    episode.links = pruneLinks(html);
+    episode.links = extractEpisodeLinks(html);
 
     callback(episode);
   });

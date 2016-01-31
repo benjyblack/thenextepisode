@@ -1,9 +1,9 @@
 const $ = require('jquery');
 
-const DB = require('./../db');
-const extractSeries = require('./extract-series');
+const DB = require('./../shared/db');
+const extractSeries = require('./../grammars/extract-series');
 
-const { TV_EPISODE_SELECTOR } = require('../constants');
+const { TV_EPISODE_SELECTOR } = require('../shared/constants');
 
 const onReady = () => {
   DB.boot().then(function () {

@@ -1,13 +1,15 @@
 const _ = require('lodash');
+const cheerio = require('cheerio');
 
 const {
   TV_SERIES_TITLE_SELECTOR,
   TV_EPISODE_SELECTOR,
   TV_EPISODE_NAME_SELECTOR,
   TV_EPISODE_NAME_PREFIX
-} = require('../constants');
+} = require('../shared/constants');
 
-module.exports = ($) => {
+module.exports = (html) => {
+  const $ = cheerio.load(html);
   const seriesName = $(TV_SERIES_TITLE_SELECTOR).text().split(' ').slice(0, -1).join(' ');
 
   const episodes = _.map($(TV_EPISODE_SELECTOR), function (el) {
