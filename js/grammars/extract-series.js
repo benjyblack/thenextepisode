@@ -14,10 +14,8 @@ module.exports = (html) => {
 
   const episodes = _.map($(TV_EPISODE_SELECTOR), function (el) {
     const url = $(el).find('a').attr('href');
-
     const rawEpisodeName = $(el).find(TV_EPISODE_NAME_SELECTOR).text();
     const name = _sanitizeEpisodeName(rawEpisodeName);
-
     const number = _getEpisodeNumber(url);
 
     return { url, name, number};

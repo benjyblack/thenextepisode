@@ -6,15 +6,18 @@
   "version": "0.5",
   
    "browser_action": {     
-		"default_icon": "fastforward.png",
-		"default_popup": "popup.html"
+      "default_icon": "fastforward.png",
+      "default_popup": "popup.html"
 	}, 
 	
-	"background": { "page": "background.html" },
+	"background": {
+      "scripts": [ "dist/background-bundle.js" ],
+      "persistent": false
+	},
 	
 	"permissions": [
-		"http://*.primewire.ag/",
-		"storage"
+      "http://*.primewire.ag/",
+      "storage"
 	],
 	
 	"content_scripts": [
@@ -23,10 +26,10 @@
       "js": [ "dist/content-bundle.js" ],
 	  "css": ["css/1channel.css"],
 	  "img": ["img/loader.gif"],
-	  "run_at": "document_start"
+	  "run_at": "document_end"
     }],
 	
 	"web_accessible_resources": [
-		"img/loader.gif"
+      "img/loader.gif"
 	]
 }

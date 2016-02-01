@@ -1,3 +1,5 @@
+module.exports.BASE_URL = 'http://primewire.ag';
+
 module.exports.TV_EPISODE_SELECTOR = '.tv_episode_item:not(".transp2")';
 module.exports.TV_EPISODE_NAME_SELECTOR = '.tv_episode_name';
 module.exports.TV_EPISODE_NAME_PREFIX = ' - ';
@@ -8,4 +10,4 @@ module.exports.TV_EPISODE_LINK_HOST = '.version_host';
 module.exports.TV_EPISODE_LINK_URL = '.movie_version_link a';
 module.exports.TV_EPISODE_LINK_RATING = '.current-rating';
 module.exports.TV_EPISODE_LINK_VIEWS = '.version_veiws'; // [sic]
-module.exports.TV_EPISODE_LINK_SPAM = 'sponsor_host';
+module.exports.TV_EPISODE_LINK_SPAM = 'promo_host|sponsor_host|special_link';

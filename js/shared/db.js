@@ -1,12 +1,11 @@
 const DB_NAME = 'TheNextEpisode';
 const DB_INITIAL_STATE = [];
-const DB_CONTAINER = { [DB_NAME]: DB_INITIAL_STATE };
 
 const boot = () => {
   return get(DB_NAME).then(function (db) {
     // initialize DB if does not exist yet
     if (!db) {
-      return set(DB_CONTAINER).then(() => DB_INITIAL_STATE);
+      return set(DB_INITIAL_STATE).then(() => DB_INITIAL_STATE);
     }
 
     return db;
