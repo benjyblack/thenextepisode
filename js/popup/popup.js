@@ -28,18 +28,17 @@ const fetchLinks = (episodeUrl) => {
 
 const renderNav = (AppState) => {
   $('#series-name-text').text(AppState.series.name);
-  $('#season-number-text').text(`Season ${AppState.season.number}`);
+  $('#season-name-text').text(`Season ${AppState.season.number}`);
   $('#episode-name-text').text(`Episode ${AppState.episode.number} - ${AppState.episode.name}`);
 };
 
 const renderLinks = (episodeLinks) => {
   const episodeListItems = _.map(episodeLinks, (link) => {
-    return `<li class='episode_listing'>
-      <a target='_blank' href='${BASE_URL}${link.url}'>
-      <span class='website'>${link.host.split('.')[0]}</span>
-      <span class='views'>${link.views}</span>
-      <span class='rating'>${link.rating}</span>
-      </a></li>`;
+    return `<tr class="link" data-url="${BASE_URL}${link.url}">
+      <td class='website'>${link.host.split('.')[0]}</td>
+      <td class='views'>${link.views}</td>
+      <td class='rating'>${link.rating}</td>
+    </tr>`
   });
 
   $('#links')[0].innerHTML = episodeListItems.join('');
@@ -48,9 +47,14 @@ const renderLinks = (episodeLinks) => {
 $(document).ready(function() {
 	stateChanged(AppState);
 
-	$('[class*="nav-buttons"]').click(function () {
+	$('.nav-button').click(function () {
     var action = $(this).attr('data-action');
     AppState[action]();
     stateChanged(AppState);
 	});
+
+  $('body').on('click', '.link', function () {
+    var url = $(this).attr('data-url');
+    chrome.tabs.create({ url: url });
+  });
 });

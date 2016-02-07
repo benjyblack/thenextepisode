@@ -1,0 +1,71 @@
+<html>
+
+<head>
+
+	<script type="text/javascript" src="../dist/popup-bundle.js"></script>
+	<link rel="stylesheet" type="text/css" href="../css/semantic.min.css">
+	<script src="../css/semantic.min.js"></script>
+
+  <style>
+    i.icon {
+      font-size: 1.5em;
+    }
+
+    th.nav-button {
+      cursor: pointer !important;
+    }
+
+    .nav-button:hover {
+      background-color: grey !important;
+    }
+  </style>
+
+</head>
+
+<body>
+  <table class="ui selectable inverted celled unstackable table">
+    <thead>
+      <tr>
+        <th class="center aligned nav-button" data-action="getPreviousSeries">
+          <i class="chevron circle left icon"></i>
+        </th>
+        <th class="center aligned">
+        <p id="series-name-text"></p>
+        </th>
+        <th class="center aligned nav-button" data-action="getNextSeries">
+          <i class="chevron circle right icon"></i>
+        </th>
+      </tr>
+      <tr>
+        <th class="center aligned nav-button" data-action="getPreviousSeason">
+          <i class="chevron circle left icon"></i>
+        </th>
+        <th class="center aligned">
+        <p id="season-name-text"></p>
+        </th>
+        <th class="center aligned nav-button" data-action="getNextSeason">
+          <i class="chevron circle right icon"></i>
+        </th>
+      </tr>
+      <tr>
+        <th class="center aligned nav-button" data-action="getPreviousEpisode">
+          <i class="chevron circle left icon"></i>
+        </th>
+        <th class="center aligned">
+        <p id="episode-name-text"></p>
+        </th>
+        <th class="center aligned nav-button" data-action="getNextEpisode">
+          <i class="chevron circle right icon"></i>
+        </th>
+      </tr>
+      <tr>
+        <th>Website</th>
+        <th>Views</th>
+        <th>Rating</th>
+      </tr>
+    </thead>
+    <tbody id="links">
+    </tbody>
+  </table>
+</body>
+</html>

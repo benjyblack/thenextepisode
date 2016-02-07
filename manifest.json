@@ -6,13 +6,12 @@
   "version": "0.5",
   
    "browser_action": {     
-      "default_icon": "fastforward.png",
-      "default_popup": "popup.html"
+      "default_icon": "img/fastforward.png",
+      "default_popup": "html/popup.html"
 	}, 
 	
 	"background": {
-      "scripts": [ "dist/background-bundle.js" ],
-      "persistent": false
+      "scripts": [ "dist/background-bundle.js" ]
 	},
 	
 	"permissions": [
