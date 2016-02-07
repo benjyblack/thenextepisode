@@ -23,8 +23,6 @@
     {
       "matches": ["http://*.primewire.ag/*"],
       "js": [ "dist/content-bundle.js" ],
-	  "css": ["css/1channel.css"],
-	  "img": ["img/loader.gif"],
 	  "run_at": "document_end"
     }],
 	
