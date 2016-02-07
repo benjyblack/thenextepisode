@@ -1,9 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const extractEpisodeLinks = require('../../js/grammars/extract-episode-links');
+const extractEpisodeLinks = require('../../../js/grammars/extract-episode-links');
 
-var episodeLinksPageHTMLPath = path.join(__dirname, '..', 'resources', 'episode-links-page.html');
+var episodeLinksPageHTMLPath = path.join(__dirname, '..', '..', 'resources', 'episode-links-page.html');
 var episodeLinksHTML = fs.readFileSync(episodeLinksPageHTMLPath);
 
 describe('extractEpisodeLinks', function () {
