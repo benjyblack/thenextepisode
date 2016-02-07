@@ -1,6 +1,6 @@
 const $ = require('jquery');
 const _ = require('lodash');
-const fetch = require('isomorphic-fetch');
+const fetchHTML = require('../utility/fetch-html');
 
 const extractEpisodeLinks = require('../grammars/extract-episode-links');
 const AppState = chrome.extension.getBackgroundPage().AppState;
@@ -12,17 +12,11 @@ const stateChanged = (AppState) => {
   $('#links')[0].innerHTML = 'Loading...';
 
   renderNav(AppState);
-  return fetchLinks(AppState.episode.url).then(function (htmlResponse) {
+  return fetchHTML(`${BASE_URL}${AppState.episode.url}`).then(function (htmlResponse) {
     return extractEpisodeLinks(htmlResponse);
   }).then(function (links) {
     const sortedLinks = _.sortBy(links, 'views').reverse();
     renderLinks(sortedLinks);
-  });
-};
-
-const fetchLinks = (episodeUrl) => {
-  return fetch(BASE_URL + episodeUrl).then(function (response) {
-    return response.text();
   });
 };
 

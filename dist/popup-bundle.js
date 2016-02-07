@@ -48,9 +48,9 @@
 
 	var $ = __webpack_require__(3);
 	var _ = __webpack_require__(7);
-	var fetch = __webpack_require__(100);
+	var fetchHTML = __webpack_require__(100);
 
-	var extractEpisodeLinks = __webpack_require__(102);
+	var extractEpisodeLinks = __webpack_require__(103);
 	var AppState = chrome.extension.getBackgroundPage().AppState;
 
 	var _require = __webpack_require__(99);
@@ -62,17 +62,11 @@
 	  $('#links')[0].innerHTML = 'Loading...';
 
 	  renderNav(AppState);
-	  return fetchLinks(AppState.episode.url).then(function (htmlResponse) {
+	  return fetchHTML('' + BASE_URL + AppState.episode.url).then(function (htmlResponse) {
 	    return extractEpisodeLinks(htmlResponse);
 	  }).then(function (links) {
 	    var sortedLinks = _.sortBy(links, 'views').reverse();
 	    renderLinks(sortedLinks);
-	  });
-	};
-
-	var fetchLinks = function fetchLinks(episodeUrl) {
-	  return fetch(BASE_URL + episodeUrl).then(function (response) {
-	    return response.text();
 	  });
 	};
 
@@ -53147,16 +53141,30 @@
 /* 100 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
+	var fetch = __webpack_require__(101);
+
+	module.exports = function (url) {
+	  return fetch(url).then(function (response) {
+	    return response.text();
+	  });
+	};
+
+/***/ },
+/* 101 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// the whatwg-fetch polyfill installs the fetch() function
 	// on the global object (window or self)
 	//
 	// Return that as the export for use in Webpack, Browserify etc.
-	__webpack_require__(101);
+	__webpack_require__(102);
 	module.exports = self.fetch.bind(self);
 
 
 /***/ },
-/* 101 */
+/* 102 */
 /***/ function(module, exports) {
 
 	(function(self) {
@@ -53551,7 +53559,7 @@
 
 
 /***/ },
-/* 102 */
+/* 103 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
