@@ -1,4 +1,5 @@
 module.exports.BASE_URL = 'http://primewire.ag';
+module.exports.NO_EPISODES_MSG = 'No episodes';
 
 module.exports.TV_EPISODE_SELECTOR = '.tv_episode_item:not(".transp2")';
 module.exports.TV_EPISODE_NAME_SELECTOR = '.tv_episode_name';

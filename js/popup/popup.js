@@ -1,25 +1,11 @@
 const $ = require('jquery');
 const _ = require('lodash');
-const fetchHTML = require('../utility/fetch-html');
+const { BASE_URL, NO_EPISODES_MSG } = require('../shared/constants');
 
-const extractEpisodeLinks = require('../grammars/extract-episode-links');
 const AppState = chrome.extension.getBackgroundPage().AppState;
 
-const { BASE_URL } = require('../shared/constants');
-
-const stateChanged = (AppState) => {
-  $('#links')[0].innerHTML = '';
-  $('.progress').show();
-
-  renderNav(AppState);
-  return fetchHTML(`${BASE_URL}${AppState.episode.url}`).then((htmlResponse) => {
-    return extractEpisodeLinks(htmlResponse);
-  }).then((links) => {
-    const sortedLinks = _.sortBy(links, 'views').reverse();
-    $('.progress').hide();
-    renderLinks(sortedLinks);
-  });
-};
+let linksEl,
+  progressEl;
 
 const renderNav = (AppState) => {
   $('#series-name-text').text(AppState.series.name);
@@ -28,8 +14,10 @@ const renderNav = (AppState) => {
 };
 
 const renderLinks = (episodeLinks) => {
+  progressEl.hide();
+
   const episodeListItems = _.map(episodeLinks, (link) => {
-    return `<tr class="link" data-url="${BASE_URL}${link.url}">
+    return `<tr class="link" data-url="${link.url}">
       <td class='website'>${link.host.split('.')[0]}</td>
       <td class='views'>${link.views}</td>
       <td class='rating'>${link.rating}</td>
@@ -37,23 +25,50 @@ const renderLinks = (episodeLinks) => {
   });
 
   if (!episodeListItems.length) {
-    return $('#links')[0].innerHTML = 'No episodes';
+    return linksEl.html(NO_EPISODES_MSG);
   }
 
-  $('#links')[0].innerHTML = episodeListItems.join('');
+  linksEl.html(episodeListItems.join(''));
+};
+
+const onClickNextEpisode = () => {
+  var nextEpisode = AppState.getNextEpisode();
+  AppState.getEpisodeLinks(nextEpisode.url).then(function (links) {
+    openUrl(_.first(links).url);
+  });
+};
+
+const onClickNavButton = ({ currentTarget: el }) => {
+  var action = $(el).attr('data-action');
+  AppState[action]();
+  onStateChanged(AppState);
+};
+
+const onClickLink = ({ currentTarget: el }) => {
+  openUrl($(el).attr('data-url'));
+};
+
+const onStateChanged = (AppState) => {
+  linksEl.html('');
+  progressEl.show();
+
+  renderNav(AppState);
+  return AppState
+    .getEpisodeLinks(AppState.episode.url)
+    .then(renderLinks);
+};
+
+const openUrl = (url) => {
+  chrome.tabs.create({ url: BASE_URL + url });
 };
 
 $(document).ready(() => {
-	stateChanged(AppState);
+  linksEl = $('#links');
+  progressEl = $('#progress-bar');
 
-	$('.nav-button').click(function () {
-    var action = $(this).attr('data-action');
-    AppState[action]();
-    stateChanged(AppState);
-	});
+	onStateChanged(AppState);
 
-  $('body').on('click', '.link', function () {
-    var url = $(this).attr('data-url');
-    chrome.tabs.create({ url: url });
-  });
+  $('#next-episode').click(onClickNextEpisode);
+	$('.nav-button').click(onClickNavButton);
+  $('body').on('click', '.link', onClickLink);
 });

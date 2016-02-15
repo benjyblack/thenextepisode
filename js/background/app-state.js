@@ -1,4 +1,9 @@
+const _ = require('lodash');
+
 const DB = require('../shared/db');
+const fetchHTML = require('../utility/fetch-html');
+const extractEpisodeLinks = require('../grammars/extract-episode-links');
+const { BASE_URL } = require('../shared/constants');
 
 class AppState {
   constructor() {
@@ -88,6 +93,14 @@ class AppState {
       this._currentIndices.episode = this.season.episodes.length - 1;
     }
     return this.episode;
+  }
+
+  getEpisodeLinks(url) {
+    return fetchHTML(`${BASE_URL}${url}`).then((htmlResponse) => {
+      return extractEpisodeLinks(htmlResponse);
+    }).then((links) => {
+      return _.sortBy(links, 'views').reverse();
+    });
   }
 }
 
