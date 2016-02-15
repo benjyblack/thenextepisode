@@ -58,14 +58,15 @@
 	var BASE_URL = _require.BASE_URL;
 
 	var stateChanged = function stateChanged(AppState) {
-	  $('.episode_listing').remove();
-	  $('#links')[0].innerHTML = 'Loading...';
+	  $('#links')[0].innerHTML = '';
+	  $('.progress').show();
 
 	  renderNav(AppState);
 	  return fetchHTML('' + BASE_URL + AppState.episode.url).then(function (htmlResponse) {
 	    return extractEpisodeLinks(htmlResponse);
 	  }).then(function (links) {
 	    var sortedLinks = _.sortBy(links, 'views').reverse();
+	    $('.progress').hide();
 	    renderLinks(sortedLinks);
 	  });
 	};
@@ -80,6 +81,10 @@
 	  var episodeListItems = _.map(episodeLinks, function (link) {
 	    return '<tr class="link" data-url="' + BASE_URL + link.url + '">\n      <td class=\'website\'>' + link.host.split('.')[0] + '</td>\n      <td class=\'views\'>' + link.views + '</td>\n      <td class=\'rating\'>' + link.rating + '</td>\n    </tr>';
 	  });
+
+	  if (!episodeListItems.length) {
+	    return $('#links')[0].innerHTML = 'No episodes';
+	  }
 
 	  $('#links')[0].innerHTML = episodeListItems.join('');
 	};

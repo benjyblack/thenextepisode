@@ -8,14 +8,15 @@ const AppState = chrome.extension.getBackgroundPage().AppState;
 const { BASE_URL } = require('../shared/constants');
 
 const stateChanged = (AppState) => {
-  $('.episode_listing').remove();
-  $('#links')[0].innerHTML = 'Loading...';
+  $('#links')[0].innerHTML = '';
+  $('.progress').show();
 
   renderNav(AppState);
-  return fetchHTML(`${BASE_URL}${AppState.episode.url}`).then(function (htmlResponse) {
+  return fetchHTML(`${BASE_URL}${AppState.episode.url}`).then((htmlResponse) => {
     return extractEpisodeLinks(htmlResponse);
-  }).then(function (links) {
+  }).then((links) => {
     const sortedLinks = _.sortBy(links, 'views').reverse();
+    $('.progress').hide();
     renderLinks(sortedLinks);
   });
 };
@@ -35,10 +36,14 @@ const renderLinks = (episodeLinks) => {
     </tr>`
   });
 
+  if (!episodeListItems.length) {
+    return $('#links')[0].innerHTML = 'No episodes';
+  }
+
   $('#links')[0].innerHTML = episodeListItems.join('');
 };
 
-$(document).ready(function() {
+$(document).ready(() => {
 	stateChanged(AppState);
 
 	$('.nav-button').click(function () {

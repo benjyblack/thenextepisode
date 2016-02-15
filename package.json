@@ -71,5 +71,6 @@
     "webpack": "^1.12.12",
     "webpack-dev-server": "^1.14.1",
     "yamljs": "^0.2.4"
-  }
+  },
+  "dependencies": {}
 }
