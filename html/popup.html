@@ -27,7 +27,7 @@
       text-align: center;
     }
 
-    #next-episode {
+    .quick-next-episode {
       width: 100%;
     }
 
@@ -51,38 +51,6 @@
 </head>
 
 <body>
-  <ul>
-    <li id="next-episode" class="btn waves-effect waves-light">Next Episode</li>
-    <li class="episode-info-container">
-      <span class="btn waves-effect waves-light nav-button" data-action="getPreviousSeries">
-        <i class="small material-icons right">skip_previous</i>
-      </span>
-      <span class="episode-info" id="series-name-text"></span>
-      <span class="btn waves-effect waves-light nav-button" data-action="getNextSeries">
-        <i class="small material-icons left">skip_next</i>
-      </span>
-    </li>
-
-    <li class="episode-info-container">
-      <span class="btn waves-effect waves-light nav-button" data-action="getPreviousSeason">
-        <i class="small material-icons right">skip_previous</i>
-      </span>
-      <span class="episode-info" id="season-name-text"></span>
-      <span class="btn waves-effect waves-light nav-button" data-action="getNextSeason">
-        <i class="small material-icons left">skip_next</i>
-      </span>
-    </li>
-
-    <li class="episode-info-container">
-      <span class="btn waves-effect waves-light nav-button" data-action="getPreviousEpisode">
-        <i class="small material-icons right">skip_previous</i>
-      </span>
-      <span class="episode-info" id="episode-name-text"></span>
-      <span class="btn waves-effect waves-light nav-button" data-action="getNextEpisode">
-        <i class="small material-icons left">skip_next</i>
-      </span>
-    </li>
-  </ul>
 
   <table class="striped">
     <thead>
