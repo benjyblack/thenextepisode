@@ -24,6 +24,7 @@
   "devDependencies": {
     "@cycle/core": "^6.0.3",
     "@cycle/dom": "^9.1.0",
+    "@cycle/http": "^8.2.0",
     "babel-loader": "^6.2.1",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.4.3",
