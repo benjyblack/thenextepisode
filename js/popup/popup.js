@@ -33,13 +33,13 @@ function main({ DOM, AppState }) {
 
   return {
     DOM: vtree$,
-    AppState: action$.startWith(false)
+    AppState: action$
   };
 }
 
 function intent(DOMSource) {
   return {
-    action$: DOMSource.select('.nav-button').events('click').map(ev => ev.currentTarget.id),
+    action$: DOMSource.select('.nav-button').events('click').map(ev => ev.currentTarget.id).startWith(false),
     clickLink$: DOMSource.select('.quick-link').events('click')
   };
 }
@@ -58,19 +58,19 @@ function view(state$) {
     return ul([
       li('#getNextEpisode.quick-link.btn.waves-effect.waves-light', 'Next Episode'),
       li('.episode-info-container', [
-        span('#getPreviousSeries${BTN_CLASSES}', [iconLeft]),
-        span('#series-name-text.episode-info', state.series.name),
-        span('#getNextSeries${BTN_CLASSES}', [iconRight])
+        span(`#getPreviousSeries${BTN_CLASSES}`, [iconLeft]),
+        span(`#series-name-text.episode-info`, state.series.name),
+        span(`#getNextSeries${BTN_CLASSES}`, [iconRight])
       ]),
-      li('.episode-info-container', [
-        span('#getPreviousSeason${BTN_CLASSES}', [iconLeft]),
-        span('#season-name-text.episode-info', `Season ${state.season.number}`),
-        span('#getNextSeason${BTN_CLASSES}', [iconRight])
+      li(`.episode-info-container`, [
+        span(`#getPreviousSeason${BTN_CLASSES}`, [iconLeft]),
+        span(`#season-name-text.episode-info`, `Season ${state.season.number}`),
+        span(`#getNextSeason${BTN_CLASSES}`, [iconRight])
       ]),
-      li('.episode-info-container', [
-        span('#getPreviousEpisode${BTN_CLASSES}', [iconLeft]),
-        span('#episode-name-text.episode-info', `Episode ${state.episode.number} - ${state.episode.name}`),
-        span('#getNextEpisode${BTN_CLASSES}', [iconRight])
+      li(`.episode-info-container`, [
+        span(`#getPreviousEpisode${BTN_CLASSES}`, [iconLeft]),
+        span(`#episode-name-text.episode-info`, `Episode ${state.episode.number} - ${state.episode.name}`),
+        span(`#getNextEpisode${BTN_CLASSES}`, [iconRight])
       ])
     ]);
   });
