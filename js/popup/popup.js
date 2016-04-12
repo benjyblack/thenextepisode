@@ -7,8 +7,12 @@ const $ = require('jquery');
 const AppState = chrome.extension.getBackgroundPage().AppState;
 
 const makeAppStateDriver = () => {
-  return function () {
-    return Observable.of(AppState);
+  return function (action$) {
+    return action$.map((action) => {
+      if (action) AppState[action]();
+
+      return AppState;
+    });
   }
 };
 
@@ -23,65 +27,50 @@ var drivers = {
 // DOM Write: Current state
 
 function main({ DOM, AppState }) {
-  const { clickEvent$, changeAppState$ } = intent(DOM, AppState);
-  const state$ = model(clickEvent$, changeAppState$);
+  const { action$ } = intent(DOM);
+  const state$ = model(AppState);
   const vtree$ = view(state$);
 
   return {
     DOM: vtree$,
-    AppState: state$
+    AppState: action$.startWith(false)
   };
 }
 
-function intent(DOMSource, AppState) {
+function intent(DOMSource) {
   return {
-    clickEvent$: DOMSource.select('.btn').events('click').map(ev => ev.currentTarget.id),
-    changeAppState$: AppState
+    action$: DOMSource.select('.nav-button').events('click').map(ev => ev.currentTarget.id),
+    clickLink$: DOMSource.select('.quick-link').events('click')
   };
 }
 
-function model(clickEvent$, changeAppState$) {
-  return Observable.combineLatest(
-    clickEvent$.startWith(null),
-    changeAppState$,
-    (action, appState) => {
-      if (action) appState[action]();
-
-      return appState;
-    }
-  );
+function model(AppState) {
+  return AppState;
 }
 
 function view(state$) {
+  const BTN_CLASSES = '.btn.waves-effect.waves-light.nav-button';
+
+  const iconLeft = i('.small.material-icons.left', 'skip_previous');
+  const iconRight = i('.small.material-icons.right', 'skip_next');
+
   return state$.map(function (state) {
     return ul([
-      li('#getNextEpisode.quick-next-episode.btn.waves-effect.waves-light', 'Next Episode'),
+      li('#getNextEpisode.quick-link.btn.waves-effect.waves-light', 'Next Episode'),
       li('.episode-info-container', [
-        span('#getPreviousSeries.btn.waves-effect.waves-light.nav-button', [
-          i('.small.material-icons.left', 'skip_previous')
-        ]),
+        span('#getPreviousSeries${BTN_CLASSES}', [iconLeft]),
         span('#series-name-text.episode-info', state.series.name),
-        span('#getNextSeries.btn.waves-effect.waves-light.nav-button', [
-          i('.small.material-icons.right', 'skip_next')
-        ])
+        span('#getNextSeries${BTN_CLASSES}', [iconRight])
       ]),
       li('.episode-info-container', [
-        span('#getPreviousSeason.btn.waves-effect.waves-light.nav-button', [
-          i('.small.material-icons.left', 'skip_previous')
-        ]),
+        span('#getPreviousSeason${BTN_CLASSES}', [iconLeft]),
         span('#season-name-text.episode-info', `Season ${state.season.number}`),
-        span('#getNextSeason.btn.waves-effect.waves-light.nav-button', [
-          i('.small.material-icons.right', 'skip_next')
-        ])
+        span('#getNextSeason${BTN_CLASSES}', [iconRight])
       ]),
       li('.episode-info-container', [
-        span('#getPreviousEpisode.btn.waves-effect.waves-light.nav-button', [
-          i('.small.material-icons.left', 'skip_previous')
-        ]),
+        span('#getPreviousEpisode${BTN_CLASSES}', [iconLeft]),
         span('#episode-name-text.episode-info', `Episode ${state.episode.number} - ${state.episode.name}`),
-        span('#getNextEpisode.btn.waves-effect.waves-light.nav-button', [
-          i('.small.material-icons.right', 'skip_next')
-        ])
+        span('#getNextEpisode${BTN_CLASSES}', [iconRight])
       ])
     ]);
   });
