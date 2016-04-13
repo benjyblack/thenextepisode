@@ -1,83 +1,132 @@
 const Cycle = require('@cycle/core');
-const {button, ul, li, i, span, makeDOMDriver} = require('@cycle/dom');
+const {button, table, tr, th, td, ul, li, i, span, div, makeDOMDriver} = require('@cycle/dom');
 const {makeHTTPDriver} = require('@cycle/http');
 const {Observable} = require('rx');
 const $ = require('jquery');
+const _ = require('lodash');
 
-const AppState = chrome.extension.getBackgroundPage().AppState;
-
-const makeAppStateDriver = () => {
-  return function (action$) {
-    return action$.map((action) => {
-      if (action) AppState[action]();
-
-      return AppState;
-    });
-  }
-};
+const extractEpisodeLinks = require('../grammars/extract-episode-links');
+const { BASE_URL, NO_EPISODES_MSG } = require('../shared/constants');
+const NavigationState = chrome.extension.getBackgroundPage().NavigationState;
 
 var drivers = {
   DOM: makeDOMDriver('body'),
   HTTP: makeHTTPDriver(),
-  AppState: makeAppStateDriver()
+  NavigationState: action$ => {
+    return action$.map(action => {
+      if (action) NavigationState[action]();
+
+      return NavigationState;
+    });
+  },
+  Tab: link$ => {
+    link$.subscribe(link => chrome.tabs.create({ url: BASE_URL + link }))
+  }
 };
 
-// DOM Read: click next series
-// AppState Write: Change episode
-// DOM Write: Current state
-
-function main({ DOM, AppState }) {
-  const { action$ } = intent(DOM);
-  const state$ = model(AppState);
+function main({ DOM, HTTP, NavigationState }) {
+  const {
+    navigationChanged$,
+    linkClicked$
+  } = intent(DOM);
+  const state$ = model(NavigationState, HTTP);
   const vtree$ = view(state$);
 
   return {
     DOM: vtree$,
-    AppState: action$
+    NavigationState: navigationChanged$,
+    Tab: linkClicked$,
+    HTTP: NavigationState.map((state) => {
+      return {
+        url: BASE_URL + state.episode.url,
+        method: 'GET'
+      };
+    })
   };
 }
 
-function intent(DOMSource) {
+function model(navigationChanged$, http$) {
+  return http$
+    .filter(res$ => res$.request.url.indexOf(BASE_URL) === 0)
+    .mergeAll()
+    .map(res => {
+      var links = extractEpisodeLinks(res.text);
+      return _.sortBy(links, 'views').reverse();
+    })
+    .combineLatest(navigationChanged$, (links, navigation) => {
+      return { links, navigation };
+    });
+}
+
+function intent(dom$) {
   return {
-    action$: DOMSource.select('.nav-button').events('click').map(ev => ev.currentTarget.id).startWith(false),
-    clickLink$: DOMSource.select('.quick-link').events('click')
+    navigationChanged$: dom$.select('.nav-button').events('click').map(ev => ev.currentTarget.id).startWith(false),
+    linkClicked$: dom$.select('.quick-link').events('click')
   };
 }
 
-function model(AppState) {
-  return AppState;
-}
-
-function view(state$) {
+function renderNavigation(state) {
   const BTN_CLASSES = '.btn.waves-effect.waves-light.nav-button';
 
   const iconLeft = i('.small.material-icons.left', 'skip_previous');
   const iconRight = i('.small.material-icons.right', 'skip_next');
 
-  return state$.map(function (state) {
-    return ul([
-      li('#getNextEpisode.quick-link.btn.waves-effect.waves-light', 'Next Episode'),
-      li('.episode-info-container', [
-        span(`#getPreviousSeries${BTN_CLASSES}`, [iconLeft]),
-        span(`#series-name-text.episode-info`, state.series.name),
-        span(`#getNextSeries${BTN_CLASSES}`, [iconRight])
-      ]),
-      li(`.episode-info-container`, [
-        span(`#getPreviousSeason${BTN_CLASSES}`, [iconLeft]),
-        span(`#season-name-text.episode-info`, `Season ${state.season.number}`),
-        span(`#getNextSeason${BTN_CLASSES}`, [iconRight])
-      ]),
-      li(`.episode-info-container`, [
-        span(`#getPreviousEpisode${BTN_CLASSES}`, [iconLeft]),
-        span(`#episode-name-text.episode-info`, `Episode ${state.episode.number} - ${state.episode.name}`),
-        span(`#getNextEpisode${BTN_CLASSES}`, [iconRight])
+  return ul([
+    li('#goToNextEpisode.quick-link.btn.waves-effect.waves-light', 'Next Episode'),
+    li('.episode-info-container', [
+      span(`#goToPreviousSeries${BTN_CLASSES}`, [iconLeft]),
+      span(`#series-name-text.episode-info`, state.series.name),
+      span(`#goToNextSeries${BTN_CLASSES}`, [iconRight])
+    ]),
+    li(`.episode-info-container`, [
+      span(`#goToPreviousSeason${BTN_CLASSES}`, [iconLeft]),
+      span(`#season-name-text.episode-info`, `Season ${state.season.number}`),
+      span(`#goToNextSeason${BTN_CLASSES}`, [iconRight])
+    ]),
+    li(`.episode-info-container`, [
+      span(`#goToPreviousEpisode${BTN_CLASSES}`, [iconLeft]),
+      span(`#episode-name-text.episode-info`, `Episode ${state.episode.number} - ${state.episode.name}`),
+      span(`#goToNextEpisode${BTN_CLASSES}`, [iconRight])
+    ])
+  ])
+}
+
+function renderLinkTable(links) {
+  return table('.link-container', [
+    th([ span('Website'), span('Views'), span('Rating') ]),
+    ...links.map(link => {
+      return tr('.link', { 'data-url': BASE_URL + link.url }, [
+        td('.website', {}, link.host.split('.')[0]),
+        td('.views', {}, link.views),
+        td('.rating', {}, link.rating)
       ])
+    })
+  ]);
+}
+
+function renderLoadingIndicator() {
+  return div('#progress-bar.progress', [
+    div('.indeterminate')
+  ]);
+}
+
+function view(state$) {
+  return state$.map((state) => {
+    if (!state || !state.navigation || !state.links) {
+      return renderLoadingIndicator();
+    }
+
+    return div([
+      renderNavigation(state.navigation),
+      renderLinkTable(state.links)
     ]);
-  });
+  })
 }
 
 $(document).ready(() => {
-  Cycle.run(main, drivers);
+  setTimeout(function () {
+    Cycle.run(main, drivers);
+  }, 2000);
 });
 
 //const _ = require('lodash');
@@ -107,29 +156,29 @@ $(document).ready(() => {
 //};
 //
 //const onClickNextEpisode = () => {
-//  var nextEpisode = AppState.getNextEpisode();
-//  AppState.getEpisodeLinks(nextEpisode.url).then(function (links) {
+//  var nextEpisode = NavigationState.goToNextEpisode();
+//  NavigationState.getEpisodeLinks(nextEpisode.url).then(function (links) {
 //    openUrl(_.first(links).url);
 //  });
 //};
 //
 //const onClickNavButton = ({ currentTarget: el }) => {
 //  var action = $(el).attr('data-action');
-//  AppState[action]();
-//  onStateChanged(AppState);
+//  NavigationState[action]();
+//  onStateChanged(NavigationState);
 //};
 //
 //const onClickLink = ({ currentTarget: el }) => {
 //  openUrl($(el).attr('data-url'));
 //};
 //
-//const onStateChanged = (AppState) => {
+//const onStateChanged = (NavigationState) => {
 //  linksEl.html('');
 //  progressEl.show();
 //
-//  renderNav(AppState);
-//  return AppState
-//    .getEpisodeLinks(AppState.episode.url)
+//  renderNav(NavigationState);
+//  return NavigationState
+//    .getEpisodeLinks(NavigationState.episode.url)
 //    .then(renderLinks);
 //};
 //
@@ -141,7 +190,7 @@ $(document).ready(() => {
 //  linksEl = $('#links');
 //  progressEl = $('#progress-bar');
 //
-//	onStateChanged(AppState);
+//	onStateChanged(NavigationState);
 //
 //  $('#next-episode').click(onClickNextEpisode);
 //	$('.nav-button').click(onClickNavButton);

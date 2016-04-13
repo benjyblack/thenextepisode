@@ -1,11 +1,6 @@
-const _ = require('lodash');
-
 const DB = require('../shared/db');
-const fetchHTML = require('../utility/fetch-html');
-const extractEpisodeLinks = require('../grammars/extract-episode-links');
-const { BASE_URL } = require('../shared/constants');
 
-class AppState {
+class NavigationState {
   constructor() {
     this._currentSeriesIndex = -1;
     this._currentSeasonIndex = -1;
@@ -68,13 +63,13 @@ class AppState {
     });
   }
 
-  getNextSeries() {
+  goToNextSeries() {
     this.currentSeriesIndex = (this.currentSeriesIndex + 1) % this._dbState.length;
     this._resetSeriesIndices();
     return this.series;
   }
 
-  getPreviousSeries() {
+  goToPreviousSeries() {
     if (--this.currentSeriesIndex < 0) {
       this.currentSeriesIndex = this._dbState.length - 1;
     }
@@ -87,13 +82,13 @@ class AppState {
     this.currentEpisodeIndex = 0;
   }
 
-  getNextSeason() {
+  goToNextSeason() {
     this.currentSeasonIndex = (this.currentSeasonIndex + 1) % this.series.seasons.length;
     this._resetSeasonIndices();
     return this.season;
   }
 
-  getPreviousSeason() {
+  goToPreviousSeason() {
     if (--this.currentSeasonIndex < 0) {
       this.currentSeasonIndex = this.series.seasons.length - 1;
     }
@@ -105,25 +100,17 @@ class AppState {
     this.currentEpisodeIndex = 0;
   }
 
-  getNextEpisode() {
+  goToNextEpisode() {
     this.currentEpisodeIndex = (this.currentEpisodeIndex + 1) % this.season.episodes.length;
     return this.episode;
   }
 
-  getPreviousEpisode() {
+  goToPreviousEpisode() {
     if (--this.currentEpisodeIndex < 0) {
       this.currentEpisodeIndex = this.season.episodes.length - 1;
     }
     return this.episode;
   }
-
-  getEpisodeLinks(url) {
-    return fetchHTML(`${BASE_URL}${url}`).then((htmlResponse) => {
-      return extractEpisodeLinks(htmlResponse);
-    }).then((links) => {
-      return _.sortBy(links, 'views').reverse();
-    });
-  }
 }
 
-module.exports = AppState;
+module.exports = NavigationState;

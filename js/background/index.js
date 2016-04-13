@@ -1,15 +1,15 @@
-const AppState = require('./app-state');
+const NavigationState = require('./navigation-state');
 
-const appState = new AppState();
+const navigationState = new NavigationState();
 
-appState.init().then(() => {
-  console.log('AppState loaded');
+navigationState.init().then(() => {
+  console.log('NavigationState loaded');
 });
 
-window.AppState = appState;
+window.NavigationState = navigationState;
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.action === 'sync') {
-    appState.sync();
+    navigationState.sync();
   }
 });
