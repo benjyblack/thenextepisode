@@ -1,20 +1,16 @@
-const fetch = require('isomorphic-fetch');
-const extractSeries = require('../../../js/grammars/extract-series');
+const fs = require('fs');
+const path = require('path');
 
-const PRIMEWIRE_URL = 'http://www.primewire.ag/tv-368495-The-Bachelor';
+const extractSeries = require('../../../js/grammars/series-page');
+
+var seriesPageHTMLPath = path.join(__dirname, '..', '..', 'resources', 'series-page.html');
+var seriesPageHTML = fs.readFileSync(seriesPageHTMLPath);
 
 describe('extractSeries', function () {
 
-  before(() => {
-    return fetch(PRIMEWIRE_URL).then((response) => {
-      return response.text();
-    }).then((html) => {
-      episodeLinksHTML = html;
-    });
-  });
-
   describe('when given a series page', function () {
     const SERIES_NAME = 'The Bachelor';
+    const NUM_SEASONS = 11;
     const FIRST_EP_NAME = 'Week One (S1)';
 
     it('returns an object', function () {
@@ -25,8 +21,8 @@ describe('extractSeries', function () {
       expect(extractSeries(seriesPageHTML)).to.have.property('name', SERIES_NAME);
     });
 
-    it('parses some seasons', function () {
-      expect(extractSeries(seriesPageHTML)).to.have.property('seasons').with.length.greaterThan(0);
+    it('parses all of the seasons', function () {
+      expect(extractSeries(seriesPageHTML)).to.have.property('seasons').with.length(NUM_SEASONS);
     });
 
     it('parses each episode name', function () {

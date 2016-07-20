@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const extractVersionLinks = require('../../../js/grammars/extract-version-links');
+const extractVersionLinks = require('../../../js/grammars/versions-page');
 
 var versionLinksPageHTMLPath = path.join(__dirname, '..', '..', 'resources', 'episode-links-page.html');
 var versionLinksHTML = fs.readFileSync(versionLinksPageHTMLPath);

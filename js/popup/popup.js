@@ -5,7 +5,7 @@ const {Observable} = require('rx');
 const $ = require('jquery');
 const _ = require('lodash');
 
-const extractVersionLinks = require('../grammars/extract-version-links');
+const extractVersionLinks = require('../grammars/versions-page');
 const { BASE_URL, NO_EPISODES_MSG } = require('../shared/constants');
 const NavigationState = chrome.extension.getBackgroundPage().NavigationState;
 

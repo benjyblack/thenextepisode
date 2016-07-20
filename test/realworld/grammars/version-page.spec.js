@@ -1,5 +1,5 @@
 const fetch = require('isomorphic-fetch');
-const extractVersionLinks = require('../../../js/grammars/extract-version-links');
+const extractVersionLinks = require('../../../js/grammars/versions-page');
 
 describe('extractVersionLinks', function () {
 

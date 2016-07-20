@@ -1,7 +1,7 @@
 const $ = require('jquery');
 
 const DB = require('./../shared/db');
-const extractSeries = require('./../grammars/extract-series');
+const extractSeries = require('./../grammars/series-page');
 
 const { TV_EPISODE_SELECTOR } = require('../shared/constants');
 
