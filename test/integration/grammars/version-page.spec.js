@@ -5,7 +5,7 @@ const extractVersionLinks = require('../../../js/grammars/version-page');
 
 const PRIMEWIRE_URL = 'http://www.primewire.ag/tv-368495-The-Bachelor/season-20-episode-2';
 
-describe('extractVersionLinks', function () {
+describe('versionPage', function () {
   this.timeout(4000);
   let versionLinksHTML;
 

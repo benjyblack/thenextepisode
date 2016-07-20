@@ -19,7 +19,7 @@ module.exports = (html) => {
            $(linkTag).attr('onclick').match(TV_VERSION_LINK_SPAM);
   });
 
-  const parsedLinks = _.map(realLinks, (link) => {
+  const parsedLinks = realLinks.map((link) => {
     const host = $(link).find(TV_VERSION_LINK_HOST).text().split('\'')[1];
     const url = $(link).find(TV_VERSION_LINK_URL).attr('href');
     const rating = +$(link).find(TV_VERSION_LINK_RATING).text().split(' ')[1].split('/')[0];

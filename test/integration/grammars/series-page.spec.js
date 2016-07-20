@@ -5,7 +5,7 @@ const extractSeries = require('../../../js/grammars/series-page');
 
 const PRIMEWIRE_URL = 'http://www.primewire.ag/tv-368495-The-Bachelor';
 
-describe('extractSeries', function () {
+describe('seriesPage', function () {
   this.timeout(4000);
   let seriesPageHTML;
 

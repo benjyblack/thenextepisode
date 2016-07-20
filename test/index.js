@@ -2,12 +2,11 @@ global.chai = require('chai');
 global.expect = global.chai.expect;
 
 const UNIT = [
-  './unit/grammars/series-page.spec.js',
-  './unit/grammars/versions-page.spec.js'
+  './unit/index.js'
 ];
 
 const INTEGRATION = [
-  './realworld/grammars/versions-page.spec.js'
+  './integration/index.js'
 ];
 
 switch (process.env.TEST_ENV) {

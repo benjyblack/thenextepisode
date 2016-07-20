@@ -8,11 +8,11 @@ const extractVersions = require('../../../js/grammars/version-page');
 var versionLinksPageHTMLPath = path.join(__dirname, '..', '..', 'resources', 'version-page.html');
 var versionLinksHTML = fs.readFileSync(versionLinksPageHTMLPath);
 
-describe('extractVersions', function () {
+describe('versionPage', function () {
 
   describe('when given a page of version links', function () {
     const NUM_LINKS = 32;
-    const NUM_DUD_LINKS = 3;
+    const NUM_SPAM_LINKS = 3;
 
     const FIRST_LINK_HOST = 'thevideo.me';
     const FIRST_LINK_VIEWS = 6342;
@@ -23,8 +23,8 @@ describe('extractVersions', function () {
       expect(extractVersions(versionLinksHTML)).to.be.an('array');
     });
 
-    it('returns an entry for each non-dud url', function () {
-      expect(extractVersions(versionLinksHTML)).to.have.length(NUM_LINKS - NUM_DUD_LINKS);
+    it('returns an entry for each non-spam url', function () {
+      expect(extractVersions(versionLinksHTML)).to.have.length(NUM_LINKS - NUM_SPAM_LINKS);
     });
 
     it('parses the host, url, views and ratings fields', function () {

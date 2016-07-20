@@ -13,7 +13,7 @@ const NUM_SEASONS = 11;
 const NUM_EPISODES = 98;
 const FIRST_EP_NAME = 'Week One (S1)';
 
-describe('extractSeries', function () {
+describe('seriesPage', function () {
 
   describe('when given a series page', function () {
 
