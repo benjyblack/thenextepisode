@@ -1,16 +1,20 @@
+const expect = require('chai').expect;
+
 const fetch = require('isomorphic-fetch');
 const extractSeries = require('../../../js/grammars/series-page');
 
 const PRIMEWIRE_URL = 'http://www.primewire.ag/tv-368495-The-Bachelor';
 
 describe('extractSeries', function () {
+  this.timeout(4000);
+  let seriesPageHTML;
 
   before(() => {
-    return fetch(PRIMEWIRE_URL).then((response) => {
-      return response.text();
-    }).then((html) => {
-      episodeLinksHTML = html;
-    });
+    return fetch(PRIMEWIRE_URL)
+      .then((response) => response.text())
+      .then((html) => {
+        seriesPageHTML = html;
+      });
   });
 
   describe('when given a series page', function () {

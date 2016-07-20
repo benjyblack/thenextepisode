@@ -1,17 +1,20 @@
+const expect = require('chai').expect;
+
 const fetch = require('isomorphic-fetch');
-const extractVersionLinks = require('../../../js/grammars/versions-page');
+const extractVersionLinks = require('../../../js/grammars/version-page');
+
+const PRIMEWIRE_URL = 'http://www.primewire.ag/tv-368495-The-Bachelor/season-20-episode-2';
 
 describe('extractVersionLinks', function () {
-
-  const PRIMEWIRE_URL = 'http://www.primewire.ag/tv-368495-The-Bachelor/season-20-episode-2';
+  this.timeout(4000);
   let versionLinksHTML;
 
   before(() => {
-    return fetch(PRIMEWIRE_URL).then((response) => {
-      return response.text();
-    }).then((html) => {
-      versionLinksHTML = html;
-    });
+    return fetch(PRIMEWIRE_URL)
+      .then((response) => response.text())
+      .then((html) => {
+        versionLinksHTML = html;
+      });
   });
 
   describe('when given a page of episode links', function () {

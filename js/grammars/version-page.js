@@ -15,7 +15,8 @@ module.exports = (html) => {
 
   const realLinks = _.reject($(TV_VERSION_LINK), (link) => {
     const linkTag = $(link).find(TV_VERSION_LINK_URL)[0];
-    return $(linkTag).attr('onclick').match(TV_VERSION_LINK_SPAM);
+    return $(linkTag).attr('onclick') &&
+           $(linkTag).attr('onclick').match(TV_VERSION_LINK_SPAM);
   });
 
   const parsedLinks = _.map(realLinks, (link) => {

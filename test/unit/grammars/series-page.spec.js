@@ -1,17 +1,21 @@
+const expect = require('chai').expect;
+
 const fs = require('fs');
 const path = require('path');
 
 const extractSeries = require('../../../js/grammars/series-page');
 
-var seriesPageHTMLPath = path.join(__dirname, '..', '..', 'resources', 'series-page.html');
-var seriesPageHTML = fs.readFileSync(seriesPageHTMLPath);
+const seriesPageHTMLPath = path.join(__dirname, '..', '..', 'resources', 'series-page.html');
+const seriesPageHTML = fs.readFileSync(seriesPageHTMLPath);
+
+const SERIES_NAME = 'The Bachelor';
+const NUM_SEASONS = 11;
+const NUM_EPISODES = 98;
+const FIRST_EP_NAME = 'Week One (S1)';
 
 describe('extractSeries', function () {
 
   describe('when given a series page', function () {
-    const SERIES_NAME = 'The Bachelor';
-    const NUM_SEASONS = 11;
-    const FIRST_EP_NAME = 'Week One (S1)';
 
     it('returns an object', function () {
       expect(extractSeries(seriesPageHTML)).to.be.an('object');
@@ -23,6 +27,15 @@ describe('extractSeries', function () {
 
     it('parses all of the seasons', function () {
       expect(extractSeries(seriesPageHTML)).to.have.property('seasons').with.length(NUM_SEASONS);
+    });
+
+    it('parses all of the episodes', function () {
+      const extractedSeries = extractSeries(seriesPageHTML);
+      const numEpisodesExtracted = extractedSeries.seasons.reduce((totalNumEps, nextSeason) => {
+        return totalNumEps + nextSeason.episodes.length;
+      }, 0);
+
+      expect(numEpisodesExtracted).to.equal(NUM_EPISODES);
     });
 
     it('parses each episode name', function () {
