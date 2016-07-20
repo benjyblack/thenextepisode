@@ -5,7 +5,7 @@ const {Observable} = require('rx');
 const $ = require('jquery');
 const _ = require('lodash');
 
-const extractEpisodeLinks = require('../grammars/extract-episode-links');
+const extractVersionLinks = require('../grammars/extract-version-links');
 const { BASE_URL, NO_EPISODES_MSG } = require('../shared/constants');
 const NavigationState = chrome.extension.getBackgroundPage().NavigationState;
 
@@ -50,7 +50,7 @@ function model(navigationChanged$, http$) {
     .filter(res$ => res$.request.url.indexOf(BASE_URL) === 0)
     .mergeAll()
     .map(res => {
-      var links = extractEpisodeLinks(res.text);
+      var links = extractVersionLinks(res.text);
       return _.sortBy(links, 'views').reverse();
     })
     .combineLatest(navigationChanged$, (links, navigation) => {
