@@ -2,39 +2,20 @@ const StorageInterface = require('../shared/storage-interface');
 
 class NavigationState {
   constructor() {
-    this._currentSeriesIndex = -1;
-    this._currentSeasonIndex = -1;
-    this._currentEpisodeIndex = -1;
+    this.currentSeriesIndex = -1;
+    this.currentSeasonIndex = -1;
+    this.currentEpisodeIndex = -1;
 
-    this._dbState = [];
-  }
-
-  get currentSeriesIndex() {
-    return this._currentSeriesIndex;
-  }
-
-  get currentSeasonIndex() {
-    return this._currentSeasonIndex;
-  }
-
-  get currentEpisodeIndex() {
-    return this._currentEpisodeIndex;
-  }
-
-  set currentSeriesIndex(newVal) {
-    this._currentSeriesIndex = newVal;
-  }
-
-  set currentSeasonIndex(val) {
-    this._currentSeasonIndex = val;
-  }
-
-  set currentEpisodeIndex(val) {
-    this._currentEpisodeIndex = val;
+    /** 
+     * maintain cached DB state so that we don't have to
+     * continuously perform async checks against local
+     * storage
+     */
+    this._allSeriesCached = [];
   }
 
   get series() {
-    return this._dbState[this.currentSeriesIndex];
+    return this._allSeriesCached[this.currentSeriesIndex];
   }
 
   get season() {
@@ -46,10 +27,8 @@ class NavigationState {
   }
 
   init() {
-    return StorageInterface.getAllSeries().then((db) => {
-      this._dbState = db;
-
-      if (this._dbState.length) {
+    return this.sync().then(() => {
+      if (this._allSeriesCached.length) {
         this.currentSeriesIndex = 0;
         this.currentSeasonIndex = 0;
         this.currentEpisodeIndex = 0;
@@ -59,19 +38,19 @@ class NavigationState {
 
   sync() {
     return StorageInterface.getAllSeries().then((db) => {
-      this._dbState = db;
+      this._allSeriesCached = db;
     });
   }
 
   goToNextSeries() {
-    this.currentSeriesIndex = (this.currentSeriesIndex + 1) % this._dbState.length;
+    this.currentSeriesIndex = (this.currentSeriesIndex + 1) % this._allSeriesCached.length;
     this._resetSeriesIndices();
     return this.series;
   }
 
   goToPreviousSeries() {
     if (--this.currentSeriesIndex < 0) {
-      this.currentSeriesIndex = this._dbState.length - 1;
+      this.currentSeriesIndex = this._allSeriesCached.length - 1;
     }
     this._resetSeriesIndices();
     return this.series;
