@@ -1,9 +1,6 @@
 const {STORAGE_NAME} = require('../shared/constants');
 
 const Container = require('../models/container');
-const Series = require('../models/series');
-const Season = require('../models/season');
-const Episode = require('../models/episode');
 
 class StorageInterface {
   constructor() {
@@ -37,45 +34,22 @@ class StorageInterface {
   }
 
   addOrUpdateSeries(series) {
-    const hydratedSeries = this._hydrateSeries(series);
-    const idxOfSeries = _.findIndex(this._container.allSeries, { name: hydratedSeries.name });
+    const idxOfSeries = _.findIndex(this._container.allSeries, { name: series.name });
 
     if (idxOfSeries === -1) {
       this._container.allSeries = [
         ...this._container.allSeries,
-        hydratedSeries
+        series
       ];
     } else {
       this._container.allSeries = [
         ...this._container.allSeries.slice(0, idxOfSeries),
-        hydratedSeries,
+        series,
         ...this._container.allSeries.slice(idxOfSeries + 1)
       ];
     }
 
-    return this.save().then(() => hydratedSeries);
-  }
-
-  _hydrateSeries(series) {
-    const seasons = series.seasons.map((season) => {
-      const episodes = season.episodes.map((episodeObj) => {
-        return new Episode(
-          episodeObj.name,
-          episodeObj.number,
-          episodeObj.url
-          );
-      });
-
-      return new Season(
-        season.number,
-        episodes
-      );
-    });
-
-    return new Series(
-      series.name,
-      seasons
-    );
+    return this.save().then(() => series);
   }
 }
 

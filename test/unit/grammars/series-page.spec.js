@@ -3,6 +3,8 @@ const expect = require('chai').expect;
 const fs = require('fs');
 const path = require('path');
 
+const Series = require('../../../js/models/series');
+
 const extractSeries = require('../../../js/grammars/series-page');
 
 const seriesPageHTMLPath = path.join(__dirname, '..', '..', 'resources', 'series-page.html');
@@ -17,8 +19,8 @@ describe('seriesPage', function () {
 
   describe('when given a series page', function () {
 
-    it('returns an object', function () {
-      expect(extractSeries(seriesPageHTML)).to.be.an('object');
+    it('returns an object of type Series', function () {
+      expect(extractSeries(seriesPageHTML)).to.be.an.instanceof(Series);
     });
 
     it('parses the series name', function () {
