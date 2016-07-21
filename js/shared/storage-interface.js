@@ -1,4 +1,4 @@
-const STORAGE_NAME = 'TheNextEpisode';
+const {STORAGE_NAME} = require('../shared/constants');
 
 const Container = require('../models/container');
 const Series = require('../models/series');
@@ -7,7 +7,7 @@ const Episode = require('../models/episode');
 
 class StorageInterface {
   constructor() {
-    this._db = null;
+    this._container = null;
   }
 
   init() {
@@ -16,40 +16,40 @@ class StorageInterface {
         if (!localStorage ||
             !localStorage[STORAGE_NAME]) {
 
-          this._db = new Container();
+          this._container = new Container();
         } else {
-          this._db = localStorage[STORAGE_NAME];
+          this._container = localStorage[STORAGE_NAME];
         }
 
-        return resolve(this._db);
+        return resolve(this._container);
       });
     });
   }
 
-  getDB() {
-    return this._db;
+  getContainer() {
+    return this._container;
   }
 
   save() {
     return new Promise((resolve) => {
-      chrome.storage.local.set({ [STORAGE_NAME]: this._db }, resolve);
+      chrome.storage.local.set({ [STORAGE_NAME]: this._container }, resolve);
     });
   }
 
   addOrUpdateSeries(series) {
     const hydratedSeries = this._hydrateSeries(series);
-    const idxOfSeries = _.findIndex(this._db.allSeries, { name: hydratedSeries.name });
+    const idxOfSeries = _.findIndex(this._container.allSeries, { name: hydratedSeries.name });
 
     if (idxOfSeries === -1) {
-      this._db.allSeries = [
-        ...this._db.allSeries,
+      this._container.allSeries = [
+        ...this._container.allSeries,
         hydratedSeries
       ];
     } else {
-      this._db.allSeries = [
-        ...this._db.allSeries.slice(0, idxOfSeries),
+      this._container.allSeries = [
+        ...this._container.allSeries.slice(0, idxOfSeries),
         hydratedSeries,
-        ...this._db.allSeries.slice(idxOfSeries + 1)
+        ...this._container.allSeries.slice(idxOfSeries + 1)
       ];
     }
 

@@ -1,3 +1,5 @@
+module.exports.STORAGE_NAME = 'TheNextEpisode';
+
 module.exports.BASE_URL = 'http://primewire.ag';
 module.exports.NO_EPISODES_MSG = 'No episodes';
 
