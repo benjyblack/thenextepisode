@@ -37,7 +37,7 @@ class NavigationState {
   }
 
   sync() {
-    return StorageInterface.getAllSeries().then((db) => {
+    return StorageInterface.getDB().then((db) => {
       this._allSeriesCached = db;
     });
   }
