@@ -1,3 +1,3 @@
-describe('integration', function() {
+describe('Integration', function() {
   require('./grammars/index');
 });

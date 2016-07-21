@@ -1,3 +1,3 @@
-describe('unit', function() {
+describe('Unit', function() {
   require('./grammars/index');
 });

@@ -1,4 +1,4 @@
-const DB = require('../shared/db');
+const StorageInterface = require('../shared/storage-interface');
 
 class NavigationState {
   constructor() {
@@ -46,7 +46,7 @@ class NavigationState {
   }
 
   init() {
-    return DB.boot().then((db) => {
+    return StorageInterface.getAllSeries().then((db) => {
       this._dbState = db;
 
       if (this._dbState.length) {
@@ -58,7 +58,7 @@ class NavigationState {
   }
 
   sync() {
-    return DB.get().then((db) => {
+    return StorageInterface.getAllSeries().then((db) => {
       this._dbState = db;
     });
   }
