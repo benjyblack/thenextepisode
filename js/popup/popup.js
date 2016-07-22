@@ -1,56 +1,49 @@
+const $ = require('jquery');
+const _ = require('lodash');
 const Cycle = require('@cycle/core');
 const {button, table, tr, th, td, ul, li, i, span, div, makeDOMDriver} = require('@cycle/dom');
 const {makeHTTPDriver} = require('@cycle/http');
 const {Observable} = require('rx');
 
-const $ = require('jquery');
-const _ = require('lodash');
-
 const { BASE_URL, NO_EPISODES_MSG } = require('../shared/constants');
-// const NavigationState = chrome.extension.getBackgroundPage().NavigationState;
 
 var drivers = {
   DOM: makeDOMDriver('body'),
-  NavigationState: action$ => {
-    return action$.map(action => {
-      if (action) NavigationState[action]();
-
-      return NavigationState;
-    });
-  },
   Tab: link$ => {
     link$.subscribe(link => chrome.tabs.create({ url: BASE_URL + link }))
   }
 };
 
-function main({ DOM, NavigationState }) {
+function main({ DOM }) {
   const {
-    navigationChanged$,
-    linkClicked$
+    navigate$,
+    versionClicked$
   } = intent(DOM);
-  const state$ = model(NavigationState);
+  const state$ = model(navigate$);
   const vtree$ = view(state$);
 
   return {
     DOM: vtree$,
-    NavigationState: navigationChanged$,
-    Tab: linkClicked$
+    NavigationState: navigate$,
+    Tab: versionClicked$
   };
 }
 
-function model(navigationChanged$) {
-  return navigationChanged$
-    .subscribe();
+function model(navigate$) {
+  return navigate$
+    .map((method) {
+      return 
+    });
 }
 
 function intent(dom$) {
   return {
-    navigationChanged$: dom$
+    navigate$: dom$
       .select('.nav-button')
       .events('click')
       .map(ev => ev.currentTarget.id)
       .startWith(false),
-    linkClicked$: dom$
+    versionClicked$: dom$
       .select('.quick-link')
       .events('click')
   };
@@ -65,19 +58,19 @@ function renderNavigation(state) {
   return ul([
     li('#goToNextEpisode.quick-link.btn.waves-effect.waves-light', 'Next Episode'),
     li('.episode-info-container', [
-      span(`#goToPreviousSeries${BTN_CLASSES}`, [iconLeft]),
+      span(`#prevSeries${BTN_CLASSES}`, [iconLeft]),
       span(`#series-name-text.episode-info`, state.series.name),
-      span(`#goToNextSeries${BTN_CLASSES}`, [iconRight])
+      span(`#nextSeries${BTN_CLASSES}`, [iconRight])
     ]),
     li(`.episode-info-container`, [
-      span(`#goToPreviousSeason${BTN_CLASSES}`, [iconLeft]),
+      span(`#prevSeason${BTN_CLASSES}`, [iconLeft]),
       span(`#season-name-text.episode-info`, `Season ${state.season.number}`),
-      span(`#goToNextSeason${BTN_CLASSES}`, [iconRight])
+      span(`#nextSeason${BTN_CLASSES}`, [iconRight])
     ]),
     li(`.episode-info-container`, [
-      span(`#goToPreviousEpisode${BTN_CLASSES}`, [iconLeft]),
+      span(`#prevEpisode${BTN_CLASSES}`, [iconLeft]),
       span(`#episode-name-text.episode-info`, `Episode ${state.episode.number} - ${state.episode.name}`),
-      span(`#goToNextEpisode${BTN_CLASSES}`, [iconRight])
+      span(`#nextEpisode${BTN_CLASSES}`, [iconRight])
     ])
   ])
 }

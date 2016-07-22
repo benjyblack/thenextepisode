@@ -17,7 +17,7 @@ class Season {
   nextEpisode() {
     this._currEpisodeIdx = (this._currEpisodeIdx + 1) % this.episodes.length;
     
-    return this.getCurrentSeason();
+    return this.getCurrentEpisode();
   }
 
   prevEpisode() {
