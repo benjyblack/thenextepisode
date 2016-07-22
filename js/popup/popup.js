@@ -30,10 +30,10 @@ function main({ DOM }) {
 }
 
 function model(navigate$) {
-  return navigate$
-    .map((method) {
-      return 
-    });
+  // return navigate$
+  //   .map((method) {
+  //     return 
+  //   });
 }
 
 function intent(dom$) {

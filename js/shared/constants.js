@@ -3,7 +3,7 @@ module.exports.STORAGE_NAME = 'TheNextEpisode';
 module.exports.BASE_URL = 'http://primewire.ag';
 module.exports.NO_EPISODES_MSG = 'No episodes';
 
-module.exports.TV_EPISODE_SELECTOR = '.tv_episode_item:not(".transp2")';
+module.exports.TV_EPISODE_SELECTOR = '.tv_episode_item:not(.transp2)';
 module.exports.TV_EPISODE_NAME_SELECTOR = '.tv_episode_name';
 module.exports.TV_EPISODE_NAME_PREFIX = ' - ';
 module.exports.TV_SERIES_TITLE_SELECTOR = '.choose_tabs > h1 > span';
