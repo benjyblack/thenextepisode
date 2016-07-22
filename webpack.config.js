@@ -2,7 +2,7 @@ var path = require('path');
 
 module.exports = {
   entry: {
-    background: './js/background/background.js',
+    background: './js/background/index.js',
     content: './js/content-scripts/content-script.js',
     popup: './js/popup/popup.js'
   },

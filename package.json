@@ -69,6 +69,7 @@
     "run-sequence": "^1.1.5",
     "rx": "^4.0.8",
     "sinon": "^1.17.3",
+    "sinon-as-promised": "^3.0.1",
     "style-loader": "^0.13.0",
     "webpack": "^1.12.12",
     "webpack-dev-server": "^1.14.1",
