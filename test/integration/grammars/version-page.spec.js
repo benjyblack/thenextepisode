@@ -17,7 +17,7 @@ describe('versionPage', function () {
       });
   });
 
-  describe('when given a page of episode links', function () {
+  describe('when given a page of version links', function () {
     it('returns an array', function () {
       expect(extractVersionLinks(versionLinksHTML)).to.be.an('array');
     });
