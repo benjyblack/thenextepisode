@@ -1,6 +1,9 @@
 const {STORAGE_NAME} = require('../shared/constants');
 
 const Container = require('../models/container');
+const Series = require('../models/series');
+const Season = require('../models/season');
+const Episode = require('../models/episode');
 
 class StorageInterface {
   constructor() {
@@ -15,7 +18,7 @@ class StorageInterface {
 
           this._container = new Container();
         } else {
-          this._container = localStorage[STORAGE_NAME];
+          this._container = this._toModel(localStorage[STORAGE_NAME]);
         }
 
         return resolve(this._container);
@@ -50,6 +53,37 @@ class StorageInterface {
     }
 
     return this.save().then(() => series);
+  }
+
+  navigate(model, direction) {
+    this._container[direction + model]();
+    return this.save();
+  }
+
+  _toModel(storage) {
+    const series = storage.allSeries.map((series) => {
+      const seasons = series.seasons.map((season) => {
+        const episodes = season.episodes.map((episodeObj) => {
+          return new Episode(
+            episodeObj.name,
+            episodeObj.number,
+            episodeObj.url
+          );
+        });
+
+        return new Season(
+          season.number,
+          episodes
+        );
+      });
+      
+      return new Series(
+        series.name,
+        seasons
+      );
+    });
+
+    return new Container(series);
   }
 }
 

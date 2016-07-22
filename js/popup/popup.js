@@ -2,16 +2,15 @@ const Cycle = require('@cycle/core');
 const {button, table, tr, th, td, ul, li, i, span, div, makeDOMDriver} = require('@cycle/dom');
 const {makeHTTPDriver} = require('@cycle/http');
 const {Observable} = require('rx');
+
 const $ = require('jquery');
 const _ = require('lodash');
 
-const extractVersionLinks = require('../grammars/version-page');
 const { BASE_URL, NO_EPISODES_MSG } = require('../shared/constants');
-const NavigationState = chrome.extension.getBackgroundPage().NavigationState;
+// const NavigationState = chrome.extension.getBackgroundPage().NavigationState;
 
 var drivers = {
   DOM: makeDOMDriver('body'),
-  HTTP: makeHTTPDriver(),
   NavigationState: action$ => {
     return action$.map(action => {
       if (action) NavigationState[action]();
@@ -24,44 +23,36 @@ var drivers = {
   }
 };
 
-function main({ DOM, HTTP, NavigationState }) {
+function main({ DOM, NavigationState }) {
   const {
     navigationChanged$,
     linkClicked$
   } = intent(DOM);
-  const state$ = model(NavigationState, HTTP);
+  const state$ = model(NavigationState);
   const vtree$ = view(state$);
 
   return {
     DOM: vtree$,
     NavigationState: navigationChanged$,
-    Tab: linkClicked$,
-    HTTP: NavigationState.map((state) => {
-      return {
-        url: BASE_URL + state.episode.url,
-        method: 'GET'
-      };
-    })
+    Tab: linkClicked$
   };
 }
 
-function model(navigationChanged$, http$) {
-  return http$
-    .filter(res$ => res$.request.url.indexOf(BASE_URL) === 0)
-    .mergeAll()
-    .map(res => {
-      var links = extractVersionLinks(res.text);
-      return _.sortBy(links, 'views').reverse();
-    })
-    .combineLatest(navigationChanged$, (links, navigation) => {
-      return { links, navigation };
-    });
+function model(navigationChanged$) {
+  return navigationChanged$
+    .subscribe();
 }
 
 function intent(dom$) {
   return {
-    navigationChanged$: dom$.select('.nav-button').events('click').map(ev => ev.currentTarget.id).startWith(false),
-    linkClicked$: dom$.select('.quick-link').events('click')
+    navigationChanged$: dom$
+      .select('.nav-button')
+      .events('click')
+      .map(ev => ev.currentTarget.id)
+      .startWith(false),
+    linkClicked$: dom$
+      .select('.quick-link')
+      .events('click')
   };
 }
 
