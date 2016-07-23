@@ -14,26 +14,19 @@ describe('Controller', () => {
   let controller,
       fetcherStub,
       storageStub,
-      messagePasserStub,
-      onMessageCallback;
+      messagePasserStub;
 
   beforeEach(() => {
-    fetcherMock = sinon.stub().resolves(seriesPageHTML);
+    fetcherStub = sinon.stub().resolves(seriesPageHTML);
 
     storageStub = {
       init: sinon.stub().resolves(),
       addOrUpdateSeries: sinon.stub().resolves({ name: 'Test' })
     };
 
-    onMessageCallback = sinon.spy();
+    messagePasserStub = { addListener: sinon.spy() };
 
-    messagePasserStub = {
-      addListener: (callback) => {
-        onMessageCallback = callback;
-      }
-    };
-
-    controller = new Controller(storageStub, fetcherMock, messagePasserStub);
+    controller = new Controller(storageStub, fetcherStub, messagePasserStub);
 
     return controller.init();
   });
@@ -42,14 +35,19 @@ describe('Controller', () => {
   describe('reacting to messages', () => {
 
     describe('extract-series', () => {
-      it('fetches the HTML from given URL', () => {
-        const URL = 'http://url.com';
+      const URL = 'http://url.com';
 
-        return onMessageCallback({ action: 'extract-series', url: URL }).then(() => {
-          expect(fetcherMock.calledWith(URL)).to.be.true;
+      it('fetches the HTML from given URL', () => {
+        return controller.handleMessage({ action: 'extract-and-persist-series', url: URL }).then(() => {
+          expect(fetcherStub.calledWith(URL)).to.be.true;
+        });
+      });
+
+      it('adds a series to storage', () => {
+        return controller.handleMessage({ action: 'extract-and-persist-series', url: URL }).then(() => {
+          expect(storageStub.addOrUpdateSeries.called).to.be.true;
         });
       });
     });
   });
-
 });
