@@ -20,7 +20,6 @@ describe('Controller', () => {
     fetcherStub = sinon.stub().resolves(seriesPageHTML);
 
     storageStub = {
-      init: sinon.stub().resolves(),
       addOrUpdateSeries: sinon.stub().resolves({ name: 'Test' })
     };
 
@@ -28,7 +27,7 @@ describe('Controller', () => {
 
     controller = new Controller(storageStub, fetcherStub, messagePasserStub);
 
-    return controller.init();
+    return controller;
   });
 
 

@@ -6,15 +6,8 @@ class Controller {
     this._storageInterface = storageInterface;
     this._extractor = new Extractor(fetcher);
     this._messagePasser = messagePasser;
-  }
-
-  init() {
-    return this._storageInterface.init().then(() => {
-      console.info('StorageInterface initialized');
-    }).then(() => {
-      return this._messagePasser.addListener(this.handleMessage.bind(this));
-      console.info('MessagePasser ready');
-    });
+    
+    this._messagePasser.addListener(this.handleMessage.bind(this));
   }
 
   handleMessage(request, sender, sendResponse) {

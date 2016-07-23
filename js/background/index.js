@@ -1,9 +1,9 @@
-const StorageInterface = require('./../shared/storage-interface');
+const storageInterface = require('./storage-interface');
 const fetchHTML = require('../utility/fetch-html');
 const Controller = require('./controller');
 
 new Controller(
-  new StorageInterface(),
+  storageInterface,
   fetchHTML,
   chrome.runtime.onMessage
-).init();
+);
