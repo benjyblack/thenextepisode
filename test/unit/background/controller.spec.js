@@ -20,7 +20,8 @@ describe('Controller', () => {
     fetcherStub = sinon.stub().resolves(seriesPageHTML);
 
     storageStub = {
-      addOrUpdateSeries: sinon.stub().resolves({ name: 'Test' })
+      getContainer: sinon.stub().resolves(),
+      saveContainer: sinon.stub().resolves()
     };
 
     messagePasserStub = { addListener: sinon.spy() };
@@ -44,7 +45,7 @@ describe('Controller', () => {
 
       it('adds a series to storage', () => {
         return controller.handleMessage({ action: 'extract-and-persist-series', url: URL }).then(() => {
-          expect(storageStub.addOrUpdateSeries.called).to.be.true;
+          expect(storageStub.saveContainer.called).to.be.true;
         });
       });
     });

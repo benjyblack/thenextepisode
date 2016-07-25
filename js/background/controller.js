@@ -38,11 +38,12 @@ class Controller {
   }
 
   _handleExtractAndPersistSeries(url) {
-    return this._fetcher(url)
-      .then(extractSeries)
-      .then((extractedSeries) =>
-        this._storageInterface.addOrUpdateSeries(extractedSeries)
-      );
+    return Promise.all([
+      this._fetcher(url).then(extractSeries),
+      this._storageInterface.getContainer()
+    ]).then(([extractedSeries, container]) => {
+      return this._storageInterface.saveContainer(container.addOrUpdateSeries(extractedSeries));
+    });
   }
 
   _handleExtractVersions(url, sendResponse) {
@@ -52,24 +53,32 @@ class Controller {
   }
 
   _handleGetViewModel(sendResponse) {
-    const container = this._storageInterface.getContainer();
-
-    return this._fetcher(BASE_URL + container.getCurrentEpisode().url)
-      .then(extractVersions)
-      .then((extractedVersions) => {
-        return sendResponse({
-          series: container.getCurrentSeries().name,
-          season: container.getCurrentSeason().number,
-          episode: container.getCurrentEpisode().name,
-          versions: extractedVersions
+    const container = this._storageInterface.getContainer().then((container) => {
+      return this._fetcher(BASE_URL + container.getCurrentEpisode().url)
+        .then(extractVersions)
+        .then((extractedVersions) => {
+          return sendResponse({
+            series: container.getCurrentSeries().name,
+            season: container.getCurrentSeason().number,
+            episode: container.getCurrentEpisode().name,
+            versions: extractedVersions
+          });
         });
-      });
+    });
   }
 
   _handleNavigate(model, direction, sendResponse) {
-    return this._storageInterface
-      .navigate(model, direction)
-      .then(() => handleGetViewModel(sendResponse));
+    return this._storageInterface.getContainer((container) => {
+      container[direction + model]();
+
+      return this._storageInterface.saveContainer(container);
+    }).then(() => handleGetViewModel(sendResponse));
+  }
+
+  _save(transformFunc) {
+    return this._storageInterface.getContainer((container) => {
+      return this._storageInterface.saveContainer(transformFunc(container));
+    });
   }
 }
 

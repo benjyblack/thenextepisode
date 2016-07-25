@@ -30,6 +30,7 @@
     "babel-register": "^6.4.3",
     "better-console": "^0.2.4",
     "chai": "^3.4.1",
+    "chai-factories": "^0.1.0",
     "cheerio": "^0.19.0",
     "css-loader": "^0.23.1",
     "del": "^2.2.0",
