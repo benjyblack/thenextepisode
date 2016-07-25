@@ -1,10 +1,11 @@
-const Extractor = require('./extractor');
+const extractSeries = require('./../grammars/series-page');
+const extractVersions = require('./../grammars/version-page');
 const {BASE_URL} = require('../shared/constants');
 
 class Controller {
   constructor(storageInterface, fetcher, messagePasser) {
     this._storageInterface = storageInterface;
-    this._extractor = new Extractor(fetcher);
+    this._fetcher = fetcher;
     this._messagePasser = messagePasser;
     
     this._messagePasser.addListener(this.handleMessage.bind(this));
@@ -37,24 +38,24 @@ class Controller {
   }
 
   _handleExtractAndPersistSeries(url) {
-    return this._extractor
-      .extractSeries(url)
+    return this._fetcher(url)
+      .then(extractSeries)
       .then((extractedSeries) =>
         this._storageInterface.addOrUpdateSeries(extractedSeries)
       );
   }
 
   _handleExtractVersions(url, sendResponse) {
-    return this._extractor
-      .extractVersions(url)
+    return this._fetcher(url)
+      .then(extractVersions)
       .then(sendResponse);  
   }
 
   _handleGetViewModel(sendResponse) {
     const container = this._storageInterface.getContainer();
 
-    return this._extractor
-      .extractVersions(BASE_URL + container.getCurrentEpisode().url)
+    return this._fetcher(BASE_URL + container.getCurrentEpisode().url)
+      .then(extractVersions)
       .then((extractedVersions) => {
         return sendResponse({
           series: container.getCurrentSeries().name,
